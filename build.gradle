@@ -1,6 +1,8 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'java-library'
     id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.144'
+    id 'idea'
 }
 
 version = project.mod_version
@@ -10,15 +12,35 @@ base {
     archivesName = project.archives_base_name
 }
 
+def replaceProperties = [
+    mod_version: mod_version,
+    neo_version_range: neo_version_range,
+    minecraft_version_range: minecraft_version_range
+]
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
 }
 
-dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        seamlessapi {
+            sourceSet(sourceSets.main)
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -26,11 +48,10 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 25
 }
 
-processResources {
-    inputs.property 'version', project.version
-
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+tasks.withType(ProcessResources).configureEach {
+    inputs.properties(replaceProperties)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(replaceProperties)
     }
 }
 
@@ -39,8 +60,6 @@ publishing {
         register('mavenJava', MavenPublication) {
             from components.java
             artifactId = project.archives_base_name
-            groupId = project.maven_group
-            version = project.version
         }
     }
     repositories {

@@ -1,0 +1,24 @@
+license="MIT"
+issueTrackerURL="https://github.com/DerkOttersberg/seamless-api/issues"
+
+[[mods]]
+modId="seamlessapi"
+version="${mod_version}"
+displayName="Seamless API"
+displayURL="https://github.com/DerkOttersberg/seamless-api"
+authors="Derk Ottersberg"
+description='''Shared integration APIs for the Seamless mod family.'''
+
+[[dependencies.seamlessapi]]
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.seamlessapi]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"
