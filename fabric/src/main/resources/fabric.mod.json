@@ -12,7 +12,7 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "main": ["com.derko.seamlessapi.SeamlessApiMod"]
+    "main": ["io.github.derkottersberg.seamlessapi.fabric.SeamlessApiFabric"]
   },
   "depends": {
     "fabricloader": ">=0.19.3",

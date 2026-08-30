@@ -1,11 +1,25 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
+        maven { url = 'https://maven.architectury.dev/' }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+gradle.beforeProject { project ->
+    if (project.name == 'forge') {
+        project.ext.set('loom.platform', 'forge')
+    } else if (project.name == 'neoforge') {
+        project.ext.set('loom.platform', 'neoforge')
+    } else {
+        project.ext.set('loom.platform', 'fabric')
     }
 }
 
 rootProject.name = 'seamless-api'
+include 'common', 'fabric', 'forge', 'neoforge'

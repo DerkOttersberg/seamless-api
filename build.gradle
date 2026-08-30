@@ -1,49 +1,124 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
-    id 'maven-publish'
+    id 'base'
+    alias(libs.plugins.architectury)
+    alias(libs.plugins.loom) apply false
 }
 
-version = project.mod_version
-group = project.maven_group
-
-base {
-    archivesName = project.archives_base_name
+architectury {
+    minecraft = libs.versions.minecraft.get()
 }
 
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
-    withSourcesJar()
-}
+allprojects {
+    group = rootProject.maven_group
+    version = rootProject.mod_version
 
-dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-    options.release = 25
-}
-
-processResources {
-    inputs.property 'version', project.version
-
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.neoforged.net/releases/' }
+        maven { url = 'https://maven.architectury.dev/' }
     }
 }
 
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            from components.java
-            artifactId = project.archives_base_name
-            groupId = project.maven_group
-            version = project.version
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInteger())
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = libs.versions.java.get().toInteger()
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+
+    publishing {
+        publications {
+            register('mavenJava', MavenPublication) {
+                from components.java
+                artifactId = "${rootProject.archives_base_name}-${project.name}"
+            }
+        }
+        repositories {
+            mavenLocal()
         }
     }
-    repositories {
-        mavenLocal()
+}
+
+tasks.register('verifyCommonIsolation') {
+    group = 'verification'
+    description = 'Fails when loader-specific imports leak into common sources.'
+    inputs.files(fileTree('common/src') { include '**/*.java' })
+
+    doLast {
+        def forbidden = ['net.fabricmc.', 'net.minecraftforge.', 'net.neoforged.']
+        def violations = []
+        inputs.files.files.sort().each { source ->
+            source.eachLine { line, number ->
+                if (forbidden.any { line.contains(it) }) {
+                    violations << "${source}:${number}: ${line.trim()}"
+                }
+            }
+        }
+        if (!violations.isEmpty()) {
+            throw new GradleException("Loader imports found in common:\n${violations.join('\n')}")
+        }
     }
+}
+
+tasks.register('verifyLoaderJars') {
+    group = 'verification'
+    description = 'Checks that each distributable jar contains only its own loader metadata.'
+    dependsOn ':fabric:jar', ':forge:jar', ':neoforge:jar'
+
+    doLast {
+        def specifications = [
+            fabric: [
+                expected: 'fabric.mod.json',
+                forbidden: ['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']
+            ],
+            forge: [
+                expected: 'META-INF/mods.toml',
+                forbidden: ['fabric.mod.json', 'META-INF/neoforge.mods.toml']
+            ],
+            neoforge: [
+                expected: 'META-INF/neoforge.mods.toml',
+                forbidden: ['fabric.mod.json', 'META-INF/mods.toml']
+            ]
+        ]
+
+        specifications.each { loader, specification ->
+            def archive = project(":${loader}").tasks.named('jar', Jar).get().archiveFile.get().asFile
+            new java.util.zip.ZipFile(archive).withCloseable { zip ->
+                if (zip.getEntry(specification.expected) == null) {
+                    throw new GradleException("${archive.name} is missing ${specification.expected}")
+                }
+                specification.forbidden.each { entry ->
+                    if (zip.getEntry(entry) != null) {
+                        throw new GradleException("${archive.name} contains stale metadata ${entry}")
+                    }
+                }
+                if (zip.getEntry('io/github/derkottersberg/seamlessapi/internal/SeamlessApiBootstrap.class') == null) {
+                    throw new GradleException("${archive.name} does not contain the common API implementation")
+                }
+            }
+        }
+    }
+}
+
+tasks.named('assemble') {
+    dependsOn subprojects.collect { it.tasks.named('assemble') }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyCommonIsolation')
+    dependsOn tasks.named('verifyLoaderJars')
+    dependsOn subprojects.collect { it.tasks.named('check') }
 }
