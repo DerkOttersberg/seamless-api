@@ -1,43 +1,61 @@
 # Seamless API
 
-Shared, loader-specific integration APIs used by the Seamless mod family. The library contains registration and query contracts for food buffs, deconstruction, meteor showers, and reusable visual effects; it does not add gameplay on its own.
+Seamless API is the shared integration library for the Seamless mod family. It
+provides stable contracts for satiation and food buffs, deconstruction, meteor
+showers, and reusable visual calculations without owning gameplay state.
 
-## Supported builds
+Version `2.0.0+mc26.2` supports Minecraft Java 26.2 on Fabric, Forge, and
+NeoForge with Java 25.
 
-| Minecraft | Loader | Branch |
-| --- | --- | --- |
-| 26.2 | Fabric | [`26.2-fabric`](https://github.com/DerkOttersberg/seamless-api/tree/26.2-fabric) |
-| 26.2 | Forge | [`26.2-forge`](https://github.com/DerkOttersberg/seamless-api/tree/26.2-forge) |
-| 26.2 | NeoForge | [`26.2-neoforge`](https://github.com/DerkOttersberg/seamless-api/tree/26.2-neoforge) |
+## Compatibility contract
 
-All 26.2 builds require Java 25. Older Minecraft branches remain available for maintenance and compatibility.
+- The compatibility mod ID is `seamlessapi` on all three loaders.
+- Existing public classes under `com.derko.seamlessapi` remain in that package.
+- New implementation classes use `io.github.derkottersberg` and are not API.
+- Public method signatures use Minecraft or loader-neutral types; loader
+  classes are never exposed by common contracts.
+- Architectury Loom is build tooling only. Architectury API is not a runtime
+  dependency.
 
-## Modules
+The maintained API surface includes `SatiationAPI`, `DeconstructionAPI`,
+`MeteorShowerAPI`, their registration records, and the visual profile/math
+types. See [MIGRATION.md](MIGRATION.md) for source and dependency changes from
+the older branches.
 
-- Food buff registration, queries, modifiers, and lifecycle events
-- Deconstruction recipes and output modifiers
-- Meteor shower start/stop integration
-- Loader-neutral animation and trail math helpers
+## Architecture
 
-## Development
+- `common` contains public contracts, loader-neutral implementation, resources,
+  and unit tests.
+- `fabric`, `forge`, and `neoforge` contain entrypoints and explicit platform
+  adapters.
+- `gradle/libs.versions.toml` is the sole source for Minecraft, loader,
+  toolchain, and test dependency versions.
+- CI rejects loader imports in `common` and jars containing another loader's
+  metadata.
 
-Build the checked-out loader branch:
+## Build
 
-```powershell
-.\gradlew.bat build
+Use Java 25 and run:
+
+```text
+gradlew.bat clean check build
 ```
 
-Publish the API to Maven Local for sibling-mod development:
+Loader jars are written to each loader module's `build/libs` directory:
 
-```powershell
-.\gradlew.bat publishToMavenLocal
+```text
+seamless-api-2.0.0+mc26.2-fabric.jar
+seamless-api-2.0.0+mc26.2-forge.jar
+seamless-api-2.0.0+mc26.2-neoforge.jar
 ```
 
-Dependency coordinates for 26.2 are:
+For sibling development, Meteors and Workbench include this repository as a
+pinned Gradle composite. Published module coordinates use group
+`io.github.derkottersberg` and version `2.0.0+mc26.2`; the API is not shaded
+into dependent mods.
 
-```gradle
-implementation "com.derko.seamlessapi:seamless-api:1.1.0"
-```
+See [PORTING.md](PORTING.md) for the loader boundary and
+[CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ## License
 
