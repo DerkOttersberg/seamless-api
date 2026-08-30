@@ -54,6 +54,12 @@ pinned Gradle composite. Published module coordinates use group
 `io.github.derkottersberg` and version `2.0.0+mc26.2`; the API is not shaded
 into dependent mods.
 
+[`suite-lock.json`](suite-lock.json) records the exact compatible commit of all
+five repositories. Suite CI reconstructs those sibling directories, runs every
+release build and server GameTest, and launches the combined Fabric client
+GameTest. The API entry is a tested baseline commit because a manifest cannot
+contain the hash of the commit that contains the manifest itself.
+
 See [PORTING.md](PORTING.md) for the loader boundary and
 [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 

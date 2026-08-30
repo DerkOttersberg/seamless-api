@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "suiteVersion": "2.0.0+mc26.2",
+  "minecraft": "26.2",
+  "java": 25,
+  "gradle": "9.5.1",
+  "tooling": {
+    "architecturyPlugin": "3.5.169",
+    "architecturyLoom": "1.17.491"
+  },
+  "loaders": {
+    "fabricLoader": "0.19.3",
+    "fabricApi": "0.158.0+26.2",
+    "forge": "26.2-65.1.3",
+    "neoforge": "26.2.0.75"
+  },
+  "repositories": [
+    {
+      "name": "Seamless API",
+      "repository": "DerkOttersberg/seamless-api",
+      "directory": "Seamless-API",
+      "artifactBase": "seamless-api",
+      "commit": "6bd3c1260323c04f0dd40da8eb040bb3480e811e",
+      "releaseOrder": 1
+    },
+    {
+      "name": "Pretty Meteors with Trails",
+      "repository": "DerkOttersberg/pretty-meteors-with-trails",
+      "directory": "pretty-meteors-with-trails",
+      "artifactBase": "pretty-meteors-with-trails",
+      "commit": "1a305c0958e735381266f21fb845db6214100739",
+      "releaseOrder": 2
+    },
+    {
+      "name": "Seamless Deconstructing Workbench",
+      "repository": "DerkOttersberg/seamless-deconstructing-workbench",
+      "directory": "seamless-deconstructing-workbench",
+      "artifactBase": "seamless-deconstructing-workbench",
+      "commit": "b38caab1112a67a2d3970f849a1aa568b4fc3a39",
+      "releaseOrder": 3
+    },
+    {
+      "name": "Seamless Crafting",
+      "repository": "DerkOttersberg/seamless-crafting",
+      "directory": "Seamless-Crafting",
+      "artifactBase": "seamless-crafting",
+      "commit": "8a74ab71226d745ca7fb5689c0ce9a47c41bc4aa",
+      "releaseOrder": 4
+    },
+    {
+      "name": "Seamless Block Animations",
+      "repository": "DerkOttersberg/seamless-block-animations",
+      "directory": "Seamless-block-animations",
+      "artifactBase": "seamless-block-animations",
+      "commit": "e4626dede865b2226480929f2212e5a3b04cefbd",
+      "releaseOrder": 5
+    }
+  ],
+  "note": "The API entry is the tested source baseline. This manifest is stored in a metadata-only descendant, so it cannot include its own containing commit hash."
+}
