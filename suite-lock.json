@@ -28,7 +28,7 @@
       "repository": "DerkOttersberg/pretty-meteors-with-trails",
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
-      "commit": "1a305c0958e735381266f21fb845db6214100739",
+      "commit": "da626750cbc7082837f36a9b7c34ad04f7e62fde",
       "releaseOrder": 2
     },
     {
@@ -36,7 +36,7 @@
       "repository": "DerkOttersberg/seamless-deconstructing-workbench",
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
-      "commit": "b38caab1112a67a2d3970f849a1aa568b4fc3a39",
+      "commit": "9e30960cb2cf90b42ea74ecfbfcf17b3bff639d7",
       "releaseOrder": 3
     },
     {
@@ -52,7 +52,7 @@
       "repository": "DerkOttersberg/seamless-block-animations",
       "directory": "seamless-block-animations",
       "artifactBase": "seamless-block-animations",
-      "commit": "73a709478b937087c06d4181728fda65e38b668b",
+      "commit": "02b74d0f3fbce2709e12a2d3fd00fafc269d52a1",
       "releaseOrder": 5
     }
   ],
