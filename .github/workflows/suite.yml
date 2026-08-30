@@ -71,13 +71,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          (cd suite/Seamless-API && ./gradlew :fabric:build)
+          (cd suite/seamless-api && ./gradlew :fabric:build)
           (cd suite/pretty-meteors-with-trails && ./gradlew :fabric:build)
           (cd suite/seamless-deconstructing-workbench && ./gradlew :fabric:build)
-          (cd suite/Seamless-Crafting && ./gradlew :fabric:build)
-          (cd suite/Seamless-block-animations && xvfb-run -a ./gradlew :fabric:runClientGameTest -PsuiteTest=true -PgraphicsBackend=opengl)
+          (cd suite/seamless-crafting && ./gradlew :fabric:build)
+          (cd suite/seamless-block-animations && xvfb-run -a ./gradlew :fabric:runClientGameTest -PsuiteTest=true -PgraphicsBackend=opengl)
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: locked-suite-fabric-opengl-screenshots
-          path: suite/Seamless-block-animations/fabric/build/run/clientGameTest/screenshots
+          path: suite/seamless-block-animations/fabric/build/run/clientGameTest/screenshots

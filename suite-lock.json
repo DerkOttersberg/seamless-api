@@ -18,7 +18,7 @@
     {
       "name": "Seamless API",
       "repository": "DerkOttersberg/seamless-api",
-      "directory": "Seamless-API",
+      "directory": "seamless-api",
       "artifactBase": "seamless-api",
       "commit": "6bd3c1260323c04f0dd40da8eb040bb3480e811e",
       "releaseOrder": 1
@@ -42,17 +42,17 @@
     {
       "name": "Seamless Crafting",
       "repository": "DerkOttersberg/seamless-crafting",
-      "directory": "Seamless-Crafting",
+      "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
-      "commit": "8a74ab71226d745ca7fb5689c0ce9a47c41bc4aa",
+      "commit": "fb04dba5812bc9bbbc14e680dca45b868ef645ab",
       "releaseOrder": 4
     },
     {
       "name": "Seamless Block Animations",
       "repository": "DerkOttersberg/seamless-block-animations",
-      "directory": "Seamless-block-animations",
+      "directory": "seamless-block-animations",
       "artifactBase": "seamless-block-animations",
-      "commit": "e4626dede865b2226480929f2212e5a3b04cefbd",
+      "commit": "73a709478b937087c06d4181728fda65e38b668b",
       "releaseOrder": 5
     }
   ],
