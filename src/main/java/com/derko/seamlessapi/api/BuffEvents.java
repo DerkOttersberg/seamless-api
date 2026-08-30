@@ -1,10 +1,9 @@
 package com.derko.seamlessapi.api;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * Event hooks for buff lifecycle.
@@ -59,7 +58,7 @@ public final class BuffEvents {
     // ---- Fire (called by Advanced Food System internals) ----
 
     /** @hidden Internal — called by Advanced Food System to fire the applied event. */
-    public static void fireBuffApplied(ServerPlayerEntity player, BuffData buff) {
+    public static void fireBuffApplied(ServerPlayer player, BuffData buff) {
         if (APPLIED_LISTENERS.isEmpty()) return;
         BuffAppliedEvent event = new BuffAppliedEvent(player, buff);
         for (Consumer<BuffAppliedEvent> listener : APPLIED_LISTENERS) {
@@ -68,7 +67,7 @@ public final class BuffEvents {
     }
 
     /** @hidden Internal — called by Advanced Food System to fire the removed event. */
-    public static void fireBuffRemoved(ServerPlayerEntity player, BuffData buff, BuffRemovedEvent.RemovalReason reason) {
+    public static void fireBuffRemoved(ServerPlayer player, BuffData buff, BuffRemovedEvent.RemovalReason reason) {
         if (REMOVED_LISTENERS.isEmpty()) return;
         BuffRemovedEvent event = new BuffRemovedEvent(player, buff, reason);
         for (Consumer<BuffRemovedEvent> listener : REMOVED_LISTENERS) {
@@ -80,7 +79,7 @@ public final class BuffEvents {
      * @hidden Internal — called by Advanced Food System before a buff is applied.
      * @return the (possibly modified) event; check {@link BuffApplyingEvent#isCanceled()} before proceeding.
      */
-    public static BuffApplyingEvent fireBuffApplying(ServerPlayerEntity player, String foodSource,
+    public static BuffApplyingEvent fireBuffApplying(ServerPlayer player, String foodSource,
                                                       String primaryBuffId, double magnitude, double healthBonus) {
         BuffApplyingEvent event = new BuffApplyingEvent(player, foodSource, primaryBuffId, magnitude, healthBonus);
         for (Consumer<BuffApplyingEvent> listener : APPLYING_LISTENERS) {
@@ -95,15 +94,15 @@ public final class BuffEvents {
      * Fired after a buff is successfully applied to a player.
      */
     public static final class BuffAppliedEvent {
-        private final ServerPlayerEntity player;
+        private final ServerPlayer player;
         private final BuffData buff;
 
-        BuffAppliedEvent(ServerPlayerEntity player, BuffData buff) {
+        BuffAppliedEvent(ServerPlayer player, BuffData buff) {
             this.player = player;
             this.buff = buff;
         }
 
-        public ServerPlayerEntity getPlayer() { return player; }
+        public ServerPlayer getPlayer() { return player; }
         public BuffData getBuff() { return buff; }
     }
 
@@ -111,7 +110,7 @@ public final class BuffEvents {
      * Fired after a buff is removed (expired or via API).
      */
     public static final class BuffRemovedEvent {
-        private final ServerPlayerEntity player;
+        private final ServerPlayer player;
         private final BuffData buff;
         private final RemovalReason reason;
 
@@ -126,13 +125,13 @@ public final class BuffEvents {
             DISPLACED
         }
 
-        BuffRemovedEvent(ServerPlayerEntity player, BuffData buff, RemovalReason reason) {
+        BuffRemovedEvent(ServerPlayer player, BuffData buff, RemovalReason reason) {
             this.player = player;
             this.buff = buff;
             this.reason = reason;
         }
 
-        public ServerPlayerEntity getPlayer() { return player; }
+        public ServerPlayer getPlayer() { return player; }
         public BuffData getBuff() { return buff; }
         public RemovalReason getReason() { return reason; }
     }
@@ -141,14 +140,14 @@ public final class BuffEvents {
      * Fired before a buff would be applied, allowing cancellation or modification.
      */
     public static final class BuffApplyingEvent {
-        private final ServerPlayerEntity player;
+        private final ServerPlayer player;
         private final String foodSource;
         private final String primaryBuffId;
         private double magnitude;
         private double healthBonus;
         private boolean canceled = false;
 
-        BuffApplyingEvent(ServerPlayerEntity player, String foodSource, String primaryBuffId,
+        BuffApplyingEvent(ServerPlayer player, String foodSource, String primaryBuffId,
                           double magnitude, double healthBonus) {
             this.player = player;
             this.foodSource = foodSource;
@@ -157,7 +156,7 @@ public final class BuffEvents {
             this.healthBonus = healthBonus;
         }
 
-        public ServerPlayerEntity getPlayer() { return player; }
+        public ServerPlayer getPlayer() { return player; }
         public String getFoodSource() { return foodSource; }
         public String getPrimaryBuffId() { return primaryBuffId; }
         public double getMagnitude() { return magnitude; }

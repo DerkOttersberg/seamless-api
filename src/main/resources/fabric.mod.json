@@ -1,18 +1,23 @@
 {
   "schemaVersion": 1,
   "id": "seamlessapi",
-  "version": "1.0.0",
+  "version": "${version}",
   "name": "Seamless API",
   "description": "Shared API library for Seamless mod systems (food buffs, deconstruction hooks, meteor showers).",
-  "authors": ["derko"],
+  "authors": ["Derk Ottersberg"],
+  "contact": {
+    "sources": "https://github.com/DerkOttersberg/seamless-api",
+    "issues": "https://github.com/DerkOttersberg/seamless-api/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
     "main": ["com.derko.seamlessapi.SeamlessApiMod"]
   },
   "depends": {
-    "fabricloader": ">=0.14.0",
+    "fabricloader": ">=0.19.3",
     "fabric-api": "*",
-    "minecraft": "~1.21"
+    "minecraft": "~26.2",
+    "java": ">=25"
   }
 }

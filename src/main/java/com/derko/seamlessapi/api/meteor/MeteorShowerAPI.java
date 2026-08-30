@@ -1,6 +1,6 @@
 package com.derko.seamlessapi.api.meteor;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * Static facade for triggering meteor shower events.
@@ -27,12 +27,12 @@ public final class MeteorShowerAPI {
 
     @FunctionalInterface
     public interface ShowerStarter {
-        void startShower(ServerWorld world, MeteorShowerRegistration config);
+        void startShower(ServerLevel world, MeteorShowerRegistration config);
     }
 
     @FunctionalInterface
     public interface ShowerStopper {
-        void stopShower(ServerWorld world);
+        void stopShower(ServerLevel world);
     }
 
     private static ShowerStarter starter;
@@ -56,7 +56,7 @@ public final class MeteorShowerAPI {
      * @param world  The server world to display the shower in
      * @param config Shower configuration (use factory methods on {@link MeteorShowerRegistration})
      */
-    public static void startShower(ServerWorld world, MeteorShowerRegistration config) {
+    public static void startShower(ServerLevel world, MeteorShowerRegistration config) {
         if (starter != null) {
             starter.startShower(world, config);
         }
@@ -68,7 +68,7 @@ public final class MeteorShowerAPI {
      *
      * @param world The server world where the shower should be stopped
      */
-    public static void stopShower(ServerWorld world) {
+    public static void stopShower(ServerLevel world) {
         if (stopper != null) {
             stopper.stopShower(world);
         }

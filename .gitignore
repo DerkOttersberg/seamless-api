@@ -1,5 +1,6 @@
 .gradle/
 build/
+bin/
 out/
 *.class
 *.jar
@@ -9,3 +10,4 @@ out/
 *.ipr
 *.iws
 run/
+.vscode/

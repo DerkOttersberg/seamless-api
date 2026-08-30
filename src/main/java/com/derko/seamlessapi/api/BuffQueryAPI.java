@@ -1,10 +1,9 @@
 package com.derko.seamlessapi.api;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * Query API for accessing active buff data on players.
@@ -30,7 +29,7 @@ public final class BuffQueryAPI {
      * @param player The server player
      * @return Immutable list of active buffs, or empty list if none
      */
-    public static List<BuffData> getAllBuffs(ServerPlayerEntity player) {
+    public static List<BuffData> getAllBuffs(ServerPlayer player) {
         if (player == null) {
             return List.of();
         }
@@ -49,7 +48,7 @@ public final class BuffQueryAPI {
      * @param predicate Filter condition
      * @return Immutable list of matching buffs
      */
-    public static List<BuffData> getBuffsMatching(ServerPlayerEntity player, Predicate<BuffData> predicate) {
+    public static List<BuffData> getBuffsMatching(ServerPlayer player, Predicate<BuffData> predicate) {
         return getAllBuffs(player).stream()
                 .filter(predicate)
                 .toList();
@@ -62,7 +61,7 @@ public final class BuffQueryAPI {
      * @param buffId The buff type ID (e.g., "walk_speed")
      * @return true if buff is active, false otherwise
      */
-    public static boolean hasBuffWithId(ServerPlayerEntity player, String buffId) {
+    public static boolean hasBuffWithId(ServerPlayer player, String buffId) {
         if (buffId == null || buffId.isBlank()) {
             return false;
         }
@@ -76,7 +75,7 @@ public final class BuffQueryAPI {
      * @param player The server player
      * @return Count of food-sourced buffs
      */
-    public static int getActiveFoodBuffCount(ServerPlayerEntity player) {
+    public static int getActiveFoodBuffCount(ServerPlayer player) {
         if (player == null) {
             return 0;
         }
@@ -99,7 +98,7 @@ public final class BuffQueryAPI {
      * @param buffId The buff type ID to remove
      * @return true if one or more buffs were removed
      */
-    public static boolean removeBuffsWithId(ServerPlayerEntity player, String buffId) {
+    public static boolean removeBuffsWithId(ServerPlayer player, String buffId) {
         if (player == null || buffId == null || buffId.isBlank()) {
             return false;
         }
@@ -125,7 +124,7 @@ public final class BuffQueryAPI {
      * @param foodSource Food registry ID
      * @return true if one or more buffs were removed
      */
-    public static boolean removeBuffsFromSource(ServerPlayerEntity player, String foodSource) {
+    public static boolean removeBuffsFromSource(ServerPlayer player, String foodSource) {
         if (player == null || foodSource == null || foodSource.isBlank()) {
             return false;
         }
@@ -151,7 +150,7 @@ public final class BuffQueryAPI {
      * @param buffId The buff type ID
      * @return Sum of magnitudes, or 0 if no such buff
      */
-    public static double getAggregateMagnitude(ServerPlayerEntity player, String buffId) {
+    public static double getAggregateMagnitude(ServerPlayer player, String buffId) {
         return getAllBuffs(player).stream()
                 .filter(b -> b.buffId().equals(buffId))
                 .mapToDouble(BuffData::magnitude)
@@ -160,10 +159,10 @@ public final class BuffQueryAPI {
 
     // === Internal helpers ===
 
-    private static List<BuffData> invokeBuffStorageGet(ServerPlayerEntity player) {
+    private static List<BuffData> invokeBuffStorageGet(ServerPlayer player) {
         try {
             var clazz = Class.forName("com.derko.advancedfoodsystem.data.BuffStorage");
-            var getMethod = clazz.getMethod("get", ServerPlayerEntity.class);
+            var getMethod = clazz.getMethod("get", ServerPlayer.class);
             var result = getMethod.invoke(null, player);
             
             @SuppressWarnings("unchecked")
@@ -204,10 +203,10 @@ public final class BuffQueryAPI {
         }
     }
 
-    private static void invokeBuffStorageSet(ServerPlayerEntity player, List<BuffData> buffs) {
+    private static void invokeBuffStorageSet(ServerPlayer player, List<BuffData> buffs) {
         try {
             var clazz = Class.forName("com.derko.advancedfoodsystem.data.BuffStorage");
-            var setMethod = clazz.getMethod("set", ServerPlayerEntity.class, List.class);
+            var setMethod = clazz.getMethod("set", ServerPlayer.class, List.class);
             
             // Convert BuffData back to BuffInstance objects
             var buffInstanceClass = Class.forName("com.derko.advancedfoodsystem.data.BuffInstance");
