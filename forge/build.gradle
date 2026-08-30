@@ -6,17 +6,29 @@ base {
     archivesName = rootProject.archives_base_name
 }
 
+// Forge 26.2 transforms one named module. Fold common sources into that
+// module so the public API and loader entrypoint share the same classloader.
+sourceSets.main {
+    java.srcDir rootProject.file('common/src/main/java')
+    resources.srcDir rootProject.file('common/src/main/resources')
+}
+
+// Loom 1.17's legacy Forge mapping services are incompatible with the
+// unobfuscated 26.2 release and incorrectly require a mappings file.
+configurations.forgeRuntimeLibrary {
+    exclude group: 'dev.architectury', module: 'architectury-naming-service'
+    exclude group: 'dev.architectury', module: 'architectury-mixin-remapper-service'
+}
+
 dependencies {
     minecraft libs.minecraft
     forge libs.forge
-    implementation project(':common')
 }
 
 loom {
     mods {
         seamlessapi {
             sourceSet sourceSets.main
-            sourceSet project(':common').sourceSets.main
         }
     }
 }
@@ -36,8 +48,9 @@ processResources {
 }
 
 tasks.named('jar', Jar) {
-    from project(':common').sourceSets.main.output
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude 'META-INF/MANIFEST.MF'
+    manifest { attributes 'Automatic-Module-Name': 'com.derko.seamlessapi' }
     archiveFileName = "${rootProject.archives_base_name}-${project.version}-forge.jar"
 }
 
