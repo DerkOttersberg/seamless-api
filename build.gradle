@@ -1,6 +1,9 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'java-library'
     id 'maven-publish'
+    id 'idea'
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[7.0.17,8)'
 }
 
 version = project.mod_version
@@ -10,15 +13,42 @@ base {
     archivesName = project.archives_base_name
 }
 
+def replaceProperties = [
+    mod_version: mod_version,
+    loader_version_range: loader_version_range,
+    forge_version_range: forge_version_range,
+    minecraft_version_range: minecraft_version_range
+]
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
 }
 
+minecraft {
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+
+        register('client')
+        register('server') {
+            args '--nogui'
+        }
+    }
+}
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+}
+
 dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    implementation minecraft.dependency("net.minecraftforge:forge:${forge_version}")
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -26,11 +56,11 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 25
 }
 
-processResources {
-    inputs.property 'version', project.version
+tasks.withType(ProcessResources).configureEach {
+    inputs.properties(replaceProperties)
 
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+    filesMatching('META-INF/mods.toml') {
+        expand(replaceProperties)
     }
 }
 
@@ -39,8 +69,6 @@ publishing {
         register('mavenJava', MavenPublication) {
             from components.java
             artifactId = project.archives_base_name
-            groupId = project.maven_group
-            version = project.version
         }
     }
     repositories {
