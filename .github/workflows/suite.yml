@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          jq -e '.schemaVersion == 1 and (.repositories | length == 4)' suite-lock.json >/dev/null
+          jq -e '.schemaVersion == 1 and (.repositories | length == 5)' suite-lock.json >/dev/null
           mkdir suite
           while IFS=$'\t' read -r directory repository commit; do
             git -c init.defaultBranch=main init "suite/$directory"

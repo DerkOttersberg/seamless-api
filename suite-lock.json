@@ -46,6 +46,14 @@
       "artifactBase": "seamless-crafting",
       "commit": "b9a533a57d83fe0d7e5da6920338171839cfad1b",
       "releaseOrder": 4
+    },
+    {
+      "name": "Sword Throw",
+      "repository": "DerkOttersberg/sword-throw",
+      "directory": "sword-throw",
+      "artifactBase": "sword-throw",
+      "commit": "93fa1b59d96e31269ddeff1665a539be5bb8f8a2",
+      "releaseOrder": 5
     }
   ],
   "note": "The API entry is the tested source baseline. This manifest is stored in a metadata-only descendant, so it cannot include its own containing commit hash."
