@@ -28,7 +28,7 @@
       "repository": "DerkOttersberg/pretty-meteors-with-trails",
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
-      "commit": "da626750cbc7082837f36a9b7c34ad04f7e62fde",
+      "commit": "daf669468dd8f35569feb8c34a6ab7a4a768e992",
       "releaseOrder": 2
     },
     {
@@ -36,7 +36,7 @@
       "repository": "DerkOttersberg/seamless-deconstructing-workbench",
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
-      "commit": "9e30960cb2cf90b42ea74ecfbfcf17b3bff639d7",
+      "commit": "30606c263e47afca7895d2d5f40d69cc421e780e",
       "releaseOrder": 3
     },
     {
@@ -44,16 +44,8 @@
       "repository": "DerkOttersberg/seamless-crafting",
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
-      "commit": "fb04dba5812bc9bbbc14e680dca45b868ef645ab",
+      "commit": "b9a533a57d83fe0d7e5da6920338171839cfad1b",
       "releaseOrder": 4
-    },
-    {
-      "name": "Seamless Block Animations",
-      "repository": "DerkOttersberg/seamless-block-animations",
-      "directory": "seamless-block-animations",
-      "artifactBase": "seamless-block-animations",
-      "commit": "02b74d0f3fbce2709e12a2d3fd00fafc269d52a1",
-      "releaseOrder": 5
     }
   ],
   "note": "The API entry is the tested source baseline. This manifest is stored in a metadata-only descendant, so it cannot include its own containing commit hash."
