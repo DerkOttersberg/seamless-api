@@ -55,7 +55,7 @@ pinned Gradle composite. Published module coordinates use group
 into dependent mods.
 
 [`suite-lock.json`](suite-lock.json) records the exact compatible commit of all
-four maintained repositories. Suite CI reconstructs those sibling directories
+five maintained repositories. Suite CI reconstructs those sibling directories
 and runs every release build and server GameTest. The API entry is a tested
 baseline commit because a manifest cannot contain the hash of the commit that
 contains the manifest itself.
