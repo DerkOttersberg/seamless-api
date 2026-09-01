@@ -11,10 +11,15 @@ import os
 import socket
 import struct
 import sys
+import time
+from collections.abc import Callable
 
 
 DEFAULT_TIMEOUT_SECONDS = 30.0
 TIMEOUT_ENVIRONMENT_VARIABLE = "PACKAGED_SUITE_RCON_TIMEOUT_SECONDS"
+DEFAULT_ATTEMPTS = 3
+ATTEMPTS_ENVIRONMENT_VARIABLE = "PACKAGED_SUITE_RCON_ATTEMPTS"
+DEFAULT_RETRY_DELAY_SECONDS = 0.25
 
 
 def packet(request_id: int, packet_type: int, payload: str) -> bytes:
@@ -65,6 +70,49 @@ def run_command(
         return payload.decode("utf-8", errors="replace")
 
 
+def run_command_with_retries(
+    host: str,
+    port: int,
+    password: str,
+    request_id: int,
+    command: str,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    attempts: int = DEFAULT_ATTEMPTS,
+    retry_delay_seconds: float = DEFAULT_RETRY_DELAY_SECONDS,
+    on_retry: Callable[[int, int, BaseException], None] | None = None,
+) -> str:
+    """Execute a command, replacing a failed RCON connection a bounded number of times.
+
+    Forge 26.2 can occasionally leave one short-lived RCON client waiting forever even while
+    the server thread and a fresh RCON connection remain healthy.  Each retry therefore opens a
+    completely new authenticated connection.  The packaged-suite commands are deliberately
+    idempotent so replaying a command whose response was lost is safe.
+    """
+
+    if attempts < 1:
+        raise ValueError("RCON attempts must be at least one")
+
+    for attempt in range(1, attempts + 1):
+        try:
+            return run_command(
+                host,
+                port,
+                password,
+                request_id,
+                command,
+                timeout_seconds,
+            )
+        except (OSError, RuntimeError) as exception:
+            if attempt >= attempts:
+                raise
+            if on_retry is not None:
+                on_retry(attempt, attempts, exception)
+            if retry_delay_seconds > 0:
+                time.sleep(retry_delay_seconds)
+
+    raise AssertionError("RCON retry loop exhausted without returning or raising")
+
+
 def configured_timeout(environment: dict[str, str] | None = None) -> float:
     """Return the validated per-connection timeout used by the packaged-suite harness."""
 
@@ -84,20 +132,49 @@ def configured_timeout(environment: dict[str, str] | None = None) -> float:
     return timeout_seconds
 
 
+def configured_attempts(environment: dict[str, str] | None = None) -> int:
+    """Return the validated number of fresh RCON connections allowed per command."""
+
+    values = os.environ if environment is None else environment
+    raw_attempts = values.get(ATTEMPTS_ENVIRONMENT_VARIABLE, str(DEFAULT_ATTEMPTS))
+    try:
+        attempts = int(raw_attempts)
+    except ValueError as exception:
+        raise ValueError(
+            f"{ATTEMPTS_ENVIRONMENT_VARIABLE} must be an integer, got {raw_attempts!r}"
+        ) from exception
+    if not 1 <= attempts <= 10:
+        raise ValueError(
+            f"{ATTEMPTS_ENVIRONMENT_VARIABLE} must be between 1 and 10, "
+            f"got {raw_attempts!r}"
+        )
+    return attempts
+
+
 def main() -> None:
     if len(sys.argv) != 6:
         raise SystemExit("usage: rcon-command.py HOST PORT PASSWORD REQUEST_ID COMMAND")
     host, raw_port, password, raw_request_id, command = sys.argv[1:]
     request_id = int(raw_request_id)
     port = int(raw_port)
+
+    def report_retry(attempt: int, attempts: int, exception: BaseException) -> None:
+        print(
+            f"Transient RCON connection failure after attempt {attempt}/{attempts}: "
+            f"{exception}; opening a fresh connection",
+            file=sys.stderr,
+        )
+
     try:
-        response = run_command(
+        response = run_command_with_retries(
             host,
             port,
             password,
             request_id,
             command,
             configured_timeout(),
+            configured_attempts(),
+            on_retry=report_retry,
         )
     except (OSError, RuntimeError, ValueError) as exception:
         raise SystemExit(

@@ -11,12 +11,6 @@ on:
       - .github/fixtures/**
       - .github/client-smoke/**
   pull_request:
-    paths:
-      - suite-lock.json
-      - .github/workflows/suite.yml
-      - .github/scripts/**
-      - .github/fixtures/**
-      - .github/client-smoke/**
 
 permissions:
   contents: read

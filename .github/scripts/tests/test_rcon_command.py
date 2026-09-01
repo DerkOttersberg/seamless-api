@@ -8,6 +8,7 @@ import socket
 import struct
 import threading
 import unittest
+from unittest import mock
 from pathlib import Path
 
 
@@ -39,6 +40,23 @@ class RconProtocolTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "PACKAGED_SUITE_RCON_TIMEOUT_SECONDS"):
                     RCON.configured_timeout(
                         {"PACKAGED_SUITE_RCON_TIMEOUT_SECONDS": invalid}
+                    )
+
+    def test_configured_attempts_defaults_to_three(self) -> None:
+        self.assertEqual(3, RCON.configured_attempts({}))
+
+    def test_configured_attempts_accepts_bounded_override(self) -> None:
+        self.assertEqual(
+            5,
+            RCON.configured_attempts({"PACKAGED_SUITE_RCON_ATTEMPTS": "5"}),
+        )
+
+    def test_configured_attempts_rejects_invalid_override(self) -> None:
+        for invalid in ("not-an-integer", "0", "11"):
+            with self.subTest(invalid=invalid):
+                with self.assertRaisesRegex(ValueError, "PACKAGED_SUITE_RCON_ATTEMPTS"):
+                    RCON.configured_attempts(
+                        {"PACKAGED_SUITE_RCON_ATTEMPTS": invalid}
                     )
 
     def test_packet_round_trip_preserves_unicode(self) -> None:
@@ -107,6 +125,50 @@ class RconProtocolTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "unexpected request"):
             RCON.run_command("127.0.0.1", port, "secret", 10, "list")
         thread.join(timeout=5)
+
+    def test_run_command_retries_on_a_fresh_connection(self) -> None:
+        retry_events: list[tuple[int, int, str]] = []
+        with mock.patch.object(
+            RCON,
+            "run_command",
+            side_effect=[socket.timeout("timed out"), "second-connection-response"],
+        ) as run_command:
+            response = RCON.run_command_with_retries(
+                "127.0.0.1",
+                25575,
+                "secret",
+                50,
+                "list",
+                timeout_seconds=1.0,
+                attempts=3,
+                retry_delay_seconds=0,
+                on_retry=lambda attempt, attempts, exception: retry_events.append(
+                    (attempt, attempts, str(exception))
+                ),
+            )
+
+        self.assertEqual("second-connection-response", response)
+        self.assertEqual(2, run_command.call_count)
+        self.assertEqual([(1, 3, "timed out")], retry_events)
+
+    def test_run_command_stops_after_configured_attempts(self) -> None:
+        with mock.patch.object(
+            RCON,
+            "run_command",
+            side_effect=RuntimeError("bad response"),
+        ) as run_command:
+            with self.assertRaisesRegex(RuntimeError, "bad response"):
+                RCON.run_command_with_retries(
+                    "127.0.0.1",
+                    25575,
+                    "secret",
+                    60,
+                    "list",
+                    attempts=2,
+                    retry_delay_seconds=0,
+                )
+
+        self.assertEqual(2, run_command.call_count)
 
 
 if __name__ == "__main__":

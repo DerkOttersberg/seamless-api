@@ -95,7 +95,8 @@ rcon_command() {
   local command="$1"
   local request_id="$rcon_request_id"
   rcon_request_id=$((rcon_request_id + 2))
-  "$python_command" "$script_dir/rcon-command.py" \
+  PACKAGED_SUITE_RCON_ATTEMPTS="${PACKAGED_SUITE_RCON_ATTEMPTS:-3}" \
+    "$python_command" "$script_dir/rcon-command.py" \
     127.0.0.1 "$RCON_PORT" "$RCON_PASSWORD" "$request_id" "$command"
 }
 
@@ -188,7 +189,7 @@ prepare_persistence_fixtures() {
   # A component-bearing, already-embedded projectile exercises entity registry and exact stack
   # persistence without relying on timing-sensitive collision geometry in a CI server.
   rcon_command \
-    'summon swordthrow:thrown_sword 8 200 0 {Tags:["suite_embedded"],Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}},ThrownStackCount:3,HitBlock:1b,Embedded:1b,EmbeddedRoll:11.25f,EmbeddedYaw:90.0f,EmbeddedPitch:0.0f,EmbeddedX:8.0d,EmbeddedY:200.0d,EmbeddedZ:0.0d,NoGravity:1b}' \
+    'execute unless entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] run summon swordthrow:thrown_sword 8 200 0 {Tags:["suite_embedded"],Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}},ThrownStackCount:3,HitBlock:1b,Embedded:1b,EmbeddedRoll:11.25f,EmbeddedYaw:90.0f,EmbeddedPitch:0.0f,EmbeddedX:8.0d,EmbeddedY:200.0d,EmbeddedZ:0.0d,NoGravity:1b}' \
     >/dev/null
 
   assert_rcon_condition \
@@ -373,7 +374,12 @@ run_once() {
   "$assertion_callback"
   verify_workbench_config_migration
 
-  rcon_command "stop" > "$run_dir/qa-logs/run-${run_number}-stop-response.txt"
+  # A lost response to `stop` still means the server may already be shutting down, so issue it
+  # only once and let the bounded process-exit check below decide whether it succeeded.
+  if ! PACKAGED_SUITE_RCON_ATTEMPTS=1 rcon_command "stop" \
+      > "$run_dir/qa-logs/run-${run_number}-stop-response.txt"; then
+    echo "${loader} packaged server run ${run_number} lost the stop response; waiting for process exit" >&2
+  fi
   local stopped=false
   for _ in $(seq 1 60); do
     if ! kill -0 "$server_pid" 2>/dev/null; then
