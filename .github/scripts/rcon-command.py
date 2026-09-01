@@ -7,9 +7,14 @@ usable in the packaged-suite jobs before any Python packages have been installed
 
 from __future__ import annotations
 
+import os
 import socket
 import struct
 import sys
+
+
+DEFAULT_TIMEOUT_SECONDS = 30.0
+TIMEOUT_ENVIRONMENT_VARIABLE = "PACKAGED_SUITE_RCON_TIMEOUT_SECONDS"
 
 
 def packet(request_id: int, packet_type: int, payload: str) -> bytes:
@@ -38,11 +43,12 @@ def run_command(
     password: str,
     request_id: int,
     command: str,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
 ) -> str:
     """Authenticate, execute one command, and return its first RCON response packet."""
 
-    with socket.create_connection((host, port), timeout=10) as connection:
-        connection.settimeout(10)
+    with socket.create_connection((host, port), timeout=timeout_seconds) as connection:
+        connection.settimeout(timeout_seconds)
         connection.sendall(packet(request_id, 3, password))
         response_id, _, _ = receive(connection)
         if response_id != request_id:
@@ -59,12 +65,44 @@ def run_command(
         return payload.decode("utf-8", errors="replace")
 
 
+def configured_timeout(environment: dict[str, str] | None = None) -> float:
+    """Return the validated per-connection timeout used by the packaged-suite harness."""
+
+    values = os.environ if environment is None else environment
+    raw_timeout = values.get(TIMEOUT_ENVIRONMENT_VARIABLE, str(DEFAULT_TIMEOUT_SECONDS))
+    try:
+        timeout_seconds = float(raw_timeout)
+    except ValueError as exception:
+        raise ValueError(
+            f"{TIMEOUT_ENVIRONMENT_VARIABLE} must be a number, got {raw_timeout!r}"
+        ) from exception
+    if not 1.0 <= timeout_seconds <= 300.0:
+        raise ValueError(
+            f"{TIMEOUT_ENVIRONMENT_VARIABLE} must be between 1 and 300 seconds, "
+            f"got {raw_timeout!r}"
+        )
+    return timeout_seconds
+
+
 def main() -> None:
     if len(sys.argv) != 6:
         raise SystemExit("usage: rcon-command.py HOST PORT PASSWORD REQUEST_ID COMMAND")
     host, raw_port, password, raw_request_id, command = sys.argv[1:]
     request_id = int(raw_request_id)
-    response = run_command(host, int(raw_port), password, request_id, command)
+    port = int(raw_port)
+    try:
+        response = run_command(
+            host,
+            port,
+            password,
+            request_id,
+            command,
+            configured_timeout(),
+        )
+    except (OSError, RuntimeError, ValueError) as exception:
+        raise SystemExit(
+            f"RCON command {command!r} to {host}:{port} failed: {exception}"
+        ) from exception
     if response:
         print(response)
 

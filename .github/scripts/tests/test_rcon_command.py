@@ -24,6 +24,23 @@ def read_packet(connection: socket.socket) -> tuple[int, int, str]:
 
 
 class RconProtocolTest(unittest.TestCase):
+    def test_configured_timeout_defaults_to_thirty_seconds(self) -> None:
+        self.assertEqual(30.0, RCON.configured_timeout({}))
+
+    def test_configured_timeout_accepts_bounded_override(self) -> None:
+        self.assertEqual(
+            45.5,
+            RCON.configured_timeout({"PACKAGED_SUITE_RCON_TIMEOUT_SECONDS": "45.5"}),
+        )
+
+    def test_configured_timeout_rejects_invalid_override(self) -> None:
+        for invalid in ("not-a-number", "0", "301"):
+            with self.subTest(invalid=invalid):
+                with self.assertRaisesRegex(ValueError, "PACKAGED_SUITE_RCON_TIMEOUT_SECONDS"):
+                    RCON.configured_timeout(
+                        {"PACKAGED_SUITE_RCON_TIMEOUT_SECONDS": invalid}
+                    )
+
     def test_packet_round_trip_preserves_unicode(self) -> None:
         left, right = socket.socketpair()
         self.addCleanup(left.close)

@@ -13,10 +13,16 @@ readonly HISTORICAL_WORKBENCH_POS="512 200 0"
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly RCON_PORT="${PACKAGED_SUITE_RCON_PORT:-25575}"
+readonly RCON_TIMEOUT_SECONDS="${PACKAGED_SUITE_RCON_TIMEOUT_SECONDS:-30}"
+export PACKAGED_SUITE_RCON_TIMEOUT_SECONDS="$RCON_TIMEOUT_SECONDS"
 
 loader="${1:?loader argument is required}"
 jars_dir="${2:?runtime-jar directory argument is required}"
 run_dir="${3:?run directory argument is required}"
+python_command=python3
+if ! command -v "$python_command" >/dev/null 2>&1; then
+  python_command=python
+fi
 
 case "$loader" in
   fabric|forge|neoforge) ;;
@@ -29,7 +35,16 @@ if [[ ! "$RCON_PORT" =~ ^[0-9]+$ ]] || ((RCON_PORT < 1024 || RCON_PORT > 65535))
   echo "Invalid packaged-suite RCON port: $RCON_PORT" >&2
   exit 2
 fi
-
+if [[ ! "$RCON_TIMEOUT_SECONDS" =~ ^[0-9]+([.][0-9]+)?$ ]] ||
+    ! "$python_command" -B - "$RCON_TIMEOUT_SECONDS" <<'PY'
+import sys
+timeout = float(sys.argv[1])
+raise SystemExit(0 if 1 <= timeout <= 300 else 1)
+PY
+then
+  echo "Invalid packaged-suite RCON timeout: $RCON_TIMEOUT_SECONDS" >&2
+  exit 2
+fi
 jars_dir="$(realpath "$jars_dir")"
 if [[ -e "$run_dir" ]]; then
   if [[ ! -d "$run_dir" ]]; then
@@ -61,10 +76,6 @@ cp \
   "$script_dir/../fixtures/workbench-historical/seamlessdeconstructor.json" \
   "$run_dir/config/seamlessdeconstructor.json"
 
-python_command=python3
-if ! command -v "$python_command" >/dev/null 2>&1; then
-  python_command=python
-fi
 rcon_request_id=1000
 historical_workbench_snbt="$(tr -d '\r\n' < "$script_dir/../fixtures/workbench-historical/block-entity.snbt")"
 
