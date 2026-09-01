@@ -43,5 +43,73 @@ jobs:
         run: |
           set -euo pipefail
           while IFS= read -r directory; do
-            (cd "suite/$directory" && ./gradlew clean check build)
+            (cd "suite/$directory" && ./gradlew --no-daemon clean check build)
           done < <(jq -r '.repositories | sort_by(.releaseOrder)[] | .directory' suite-lock.json)
+      - name: Collect the 15 canonical runtime jars
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p runtime-jars/{fabric,forge,neoforge}
+          while IFS=$'\t' read -r directory artifact_base artifact_version; do
+            for loader in fabric forge neoforge; do
+              jar="suite/$directory/$loader/build/libs/${artifact_base}-${artifact_version}-${loader}.jar"
+              test -f "$jar"
+              cp "$jar" "runtime-jars/$loader/"
+            done
+          done < <(jq -r '.repositories | sort_by(.releaseOrder)[] | [.directory, .artifactBase, .artifactVersion] | @tsv' suite-lock.json)
+          test "$(find runtime-jars -type f -name '*.jar' | wc -l)" -eq 15
+          test "$(find runtime-jars -type f -name '*-sources.jar' | wc -l)" -eq 0
+      - name: Upload canonical runtime jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-26.2-runtime-jars
+          if-no-files-found: error
+          path: runtime-jars
+      - name: Upload locked-suite reports and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: locked-suite-reports
+          if-no-files-found: ignore
+          path: |
+            suite/**/build/reports/**
+            suite/**/build/test-results/**
+            suite/**/build/run/**/logs/**
+            suite/**/build/gametest/logs/**
+
+  packaged-suite:
+    needs: locked-builds
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [fabric, forge, neoforge]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: actions/download-artifact@v4
+        with:
+          name: minecraft-26.2-runtime-jars
+          path: runtime-jars
+      - name: Start and reload the packaged ${{ matrix.loader }} suite
+        shell: bash
+        run: |
+          .github/scripts/run-packaged-suite.sh \
+            "${{ matrix.loader }}" \
+            "$PWD/runtime-jars/${{ matrix.loader }}" \
+            "$PWD/packaged-run/${{ matrix.loader }}"
+      - name: Upload ${{ matrix.loader }} packaged-suite evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packaged-suite-${{ matrix.loader }}-evidence
+          if-no-files-found: ignore
+          path: |
+            packaged-run/${{ matrix.loader }}/qa-logs/**
+            packaged-run/${{ matrix.loader }}/logs/**
+            packaged-run/${{ matrix.loader }}/crash-reports/**
+            packaged-run/${{ matrix.loader }}/config/**
+            packaged-run/${{ matrix.loader }}/*installer*.log
