@@ -21,7 +21,18 @@ case "$loader" in
 esac
 
 jars_dir="$(realpath "$jars_dir")"
-mkdir -p "$run_dir"
+if [[ -e "$run_dir" ]]; then
+  if [[ ! -d "$run_dir" ]]; then
+    echo "Packaged-suite run path is not a directory: $run_dir" >&2
+    exit 2
+  fi
+  if [[ -n "$(find "$run_dir" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+    echo "Packaged-suite run directory must be empty: $run_dir" >&2
+    exit 2
+  fi
+else
+  mkdir -p "$run_dir"
+fi
 run_dir="$(realpath "$run_dir")"
 if [[ "$run_dir" == "/" || "$run_dir" == "$jars_dir" ]]; then
   echo "Unsafe packaged-suite run directory: $run_dir" >&2
@@ -45,6 +56,20 @@ download() {
 }
 
 declare -a launch_command
+active_server_pid=""
+
+cleanup_active_server() {
+  if [[ -n "$active_server_pid" ]] && kill -0 "$active_server_pid" 2>/dev/null; then
+    kill "$active_server_pid" 2>/dev/null || true
+    wait "$active_server_pid" 2>/dev/null || true
+  fi
+  active_server_pid=""
+}
+
+trap cleanup_active_server EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
 case "$loader" in
   fabric)
     download \
@@ -110,6 +135,7 @@ printf '%s\n' \
   'online-mode=false' \
   'rcon.password=release-hardening-local-only' \
   'rcon.port=25575' \
+  'server-ip=127.0.0.1' \
   'server-port=0' \
   'spawn-protection=0' \
   > "$run_dir/server.properties"
@@ -122,6 +148,7 @@ run_once() {
     "${launch_command[@]}"
   ) < /dev/null > "$console_log" 2>&1 &
   local server_pid=$!
+  active_server_pid="$server_pid"
 
   local ready=false
   for _ in $(seq 1 240); do
@@ -140,6 +167,7 @@ run_once() {
     tail -n 200 "$console_log" >&2 || true
     kill "$server_pid" 2>/dev/null || true
     wait "$server_pid" 2>/dev/null || true
+    active_server_pid=""
     return 1
   fi
 
@@ -151,6 +179,7 @@ run_once() {
     127.0.0.1 25575 release-hardening-local-only "$run_number" stop
   local exit_code=0
   wait "$server_pid" || exit_code=$?
+  active_server_pid=""
   if [[ "$exit_code" -ne 0 ]]; then
     echo "${loader} packaged server run ${run_number} exited with ${exit_code}" >&2
     tail -n 200 "$console_log" >&2 || true

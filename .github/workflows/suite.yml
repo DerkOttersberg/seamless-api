@@ -7,10 +7,12 @@ on:
     paths:
       - suite-lock.json
       - .github/workflows/suite.yml
+      - .github/scripts/**
   pull_request:
     paths:
       - suite-lock.json
       - .github/workflows/suite.yml
+      - .github/scripts/**
 
 permissions:
   contents: read
@@ -29,7 +31,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          jq -e '.schemaVersion == 1 and (.repositories | length == 5)' suite-lock.json >/dev/null
+          jq -e '
+            .schemaVersion == 1 and
+            .minecraft == "26.2" and
+            .java == 25 and
+            (.repositories | length == 5) and
+            ([.repositories[].directory] | unique | length) == 5 and
+            ([.repositories[].releaseOrder] | unique | length) == 5 and
+            all(.repositories[];
+              ((.directory | type) == "string") and
+              ((.directory // "") | test("^[a-z0-9][a-z0-9-]*$")) and
+              ((.repository | type) == "string") and
+              ((.repository // "") | test("^DerkOttersberg/[A-Za-z0-9._-]+$")) and
+              ((.artifactBase | type) == "string") and
+              ((.artifactBase // "") | test("^[a-z0-9][a-z0-9-]*$")) and
+              ((.artifactVersion | type) == "string") and
+              ((.artifactVersion // "") | length > 0) and
+              ((.commit | type) == "string") and
+              ((.commit // "") | test("^[0-9a-f]{40}$")) and
+              ((.releaseOrder | type) == "number")
+            )
+          ' suite-lock.json >/dev/null
           mkdir suite
           while IFS=$'\t' read -r directory repository commit; do
             git -c init.defaultBranch=main init "suite/$directory"
