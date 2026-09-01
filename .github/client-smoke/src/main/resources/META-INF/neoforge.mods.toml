@@ -1,0 +1,7 @@
+license="CC0-1.0"
+
+[[mods]]
+modId="suiteclientsmoke"
+version="1.0.0"
+displayName="Seamless Suite Client Smoke Harness"
+description='''Metadata-only NeoForge development-launch anchor. It contains no gameplay code.'''
