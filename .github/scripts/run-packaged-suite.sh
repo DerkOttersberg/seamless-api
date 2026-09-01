@@ -84,9 +84,17 @@ case "$loader" in
       cd "$run_dir"
       java -jar neoforge-installer.jar --installServer
     )
+    neoforge_args="libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/unix_args.txt"
+    case "$(uname -s)" in
+      MINGW*|MSYS*|CYGWIN*)
+        # Git Bash still launches the Windows JVM, whose classpath separator is
+        # ';'. The installer's unix argument file uses ':' and cannot boot here.
+        neoforge_args="libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/win_args.txt"
+        ;;
+    esac
     launch_command=(
       java -Xms512M -Xmx2G
-      @"libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/unix_args.txt"
+      @"${neoforge_args}"
       nogui
     )
     ;;
