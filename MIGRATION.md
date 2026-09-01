@@ -2,7 +2,7 @@
 
 ## Dependency changes
 
-Use group `io.github.derkottersberg`, version `2.0.0+mc26.2`, and the module
+Use group `io.github.derkottersberg`, version `2.0.1+mc26.2`, and the module
 matching the target loader. Seamless API must remain a separate dependency; do
 not shade it into another mod. Runtime metadata should require compatible
 Seamless API `2.x` releases.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1+mc26.2
+
+- Removed the unused Fabric API runtime dependency from the Fabric artifact.
+- Added stricter packaged-metadata verification for the 26.2 release line.
+
 ## 2.0.0+mc26.2
 
 - Ported the complete API surface to Minecraft Java 26.2 and Java 25.

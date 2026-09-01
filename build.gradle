@@ -96,6 +96,10 @@ tasks.register('verifyLoaderJars') {
 
         specifications.each { loader, specification ->
             def archive = project(":${loader}").tasks.named('jar', Jar).get().archiveFile.get().asFile
+            def expectedName = "${rootProject.archives_base_name}-${project.version}-${loader}.jar"
+            if (archive.name != expectedName) {
+                throw new GradleException("Expected ${expectedName}, found ${archive.name}")
+            }
             new java.util.zip.ZipFile(archive).withCloseable { zip ->
                 if (zip.getEntry(specification.expected) == null) {
                     throw new GradleException("${archive.name} is missing ${specification.expected}")
@@ -107,6 +111,19 @@ tasks.register('verifyLoaderJars') {
                 }
                 if (zip.getEntry('io/github/derkottersberg/seamlessapi/internal/SeamlessApiBootstrap.class') == null) {
                     throw new GradleException("${archive.name} does not contain the common API implementation")
+                }
+
+                if (loader == 'fabric') {
+                    def metadata = new groovy.json.JsonSlurper().parse(zip.getInputStream(zip.getEntry('fabric.mod.json')))
+                    if (metadata.version != project.version.toString()) {
+                        throw new GradleException("${archive.name} declares unexpected version ${metadata.version}")
+                    }
+                    if (metadata.depends['fabric-api'] != null) {
+                        throw new GradleException("${archive.name} must not require unused Fabric API")
+                    }
+                    if (metadata.depends.minecraft != '~26.2' || metadata.depends.java != '>=25') {
+                        throw new GradleException("${archive.name} contains unexpected Minecraft/Java dependency ranges")
+                    }
                 }
             }
         }
