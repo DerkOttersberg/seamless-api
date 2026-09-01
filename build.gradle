@@ -170,6 +170,16 @@ tasks.register('testSuiteLockVerifier', Exec) {
             '.github/scripts/tests/test_verify_suite_lock.py'
 }
 
+tasks.register('testRconHelper', Exec) {
+    group = 'verification'
+    description = 'Runs protocol-level tests for the packaged-suite RCON client.'
+    workingDir rootProject.projectDir
+    environment 'PYTHONDONTWRITEBYTECODE', '1'
+    commandLine suiteLockPython.get(),
+            '-B',
+            '.github/scripts/tests/test_rcon_command.py'
+}
+
 tasks.register('verifySuiteLock', Exec) {
     group = 'verification'
     description = 'Validates suite-lock.json before the locked release suite is built.'
@@ -189,5 +199,6 @@ tasks.named('assemble') {
 tasks.named('check') {
     dependsOn tasks.named('verifyCommonIsolation')
     dependsOn tasks.named('verifyLoaderJars')
+    dependsOn tasks.named('testRconHelper')
     dependsOn subprojects.collect { it.tasks.named('check') }
 }

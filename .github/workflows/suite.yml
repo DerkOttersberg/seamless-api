@@ -28,7 +28,9 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
       - name: Test the suite-lock validator
-        run: python3 -B .github/scripts/tests/test_verify_suite_lock.py
+        run: |
+          python3 -B .github/scripts/tests/test_verify_suite_lock.py
+          python3 -B .github/scripts/tests/test_rcon_command.py
       - name: Check out locked commits
         shell: bash
         run: |
@@ -116,4 +118,5 @@ jobs:
             packaged-run/${{ matrix.loader }}/logs/**
             packaged-run/${{ matrix.loader }}/crash-reports/**
             packaged-run/${{ matrix.loader }}/config/**
+            packaged-run/${{ matrix.loader }}/suite-world/**
             packaged-run/${{ matrix.loader }}/*installer*.log

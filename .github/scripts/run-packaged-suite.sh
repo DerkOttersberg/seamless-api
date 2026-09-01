@@ -7,6 +7,12 @@ readonly FABRIC_INSTALLER_VERSION="1.1.2"
 readonly FABRIC_API_VERSION="0.159.0+26.2"
 readonly FORGE_VERSION="26.2-65.1.3"
 readonly NEOFORGE_VERSION="26.2.0.75"
+readonly RCON_PASSWORD="release-hardening-local-only"
+readonly WORKBENCH_POS="0 200 0"
+readonly HISTORICAL_WORKBENCH_POS="512 200 0"
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+readonly RCON_PORT="${PACKAGED_SUITE_RCON_PORT:-25575}"
 
 loader="${1:?loader argument is required}"
 jars_dir="${2:?runtime-jar directory argument is required}"
@@ -19,6 +25,10 @@ case "$loader" in
     exit 2
     ;;
 esac
+if [[ ! "$RCON_PORT" =~ ^[0-9]+$ ]] || ((RCON_PORT < 1024 || RCON_PORT > 65535)); then
+  echo "Invalid packaged-suite RCON port: $RCON_PORT" >&2
+  exit 2
+fi
 
 jars_dir="$(realpath "$jars_dir")"
 if [[ -e "$run_dir" ]]; then
@@ -39,7 +49,7 @@ if [[ "$run_dir" == "/" || "$run_dir" == "$jars_dir" ]]; then
   exit 2
 fi
 
-mkdir -p "$run_dir/mods" "$run_dir/qa-logs"
+mkdir -p "$run_dir/mods" "$run_dir/qa-logs" "$run_dir/config"
 mapfile -t runtime_jars < <(find "$jars_dir" -maxdepth 1 -type f -name "*-${loader}.jar" ! -name "*-sources.jar" | sort)
 if [[ "${#runtime_jars[@]}" -ne 5 ]]; then
   printf 'Expected exactly five %s runtime jars, found %s:\n' "$loader" "${#runtime_jars[@]}" >&2
@@ -47,6 +57,183 @@ if [[ "${#runtime_jars[@]}" -ne 5 ]]; then
   exit 1
 fi
 cp "${runtime_jars[@]}" "$run_dir/mods/"
+cp \
+  "$script_dir/../fixtures/workbench-historical/seamlessdeconstructor.json" \
+  "$run_dir/config/seamlessdeconstructor.json"
+
+python_command=python3
+if ! command -v "$python_command" >/dev/null 2>&1; then
+  python_command=python
+fi
+rcon_request_id=1000
+historical_workbench_snbt="$(tr -d '\r\n' < "$script_dir/../fixtures/workbench-historical/block-entity.snbt")"
+
+# Refuse to run when another local process is already listening.  Besides producing a clearer
+# diagnostic, this prevents a stale development server with the same password from satisfying
+# assertions intended for the newly launched process.
+"$python_command" -B - "$RCON_PORT" <<'PY'
+import socket
+import sys
+
+port = int(sys.argv[1])
+with socket.socket() as probe:
+    probe.bind(("127.0.0.1", port))
+PY
+
+rcon_command() {
+  local command="$1"
+  local request_id="$rcon_request_id"
+  rcon_request_id=$((rcon_request_id + 2))
+  "$python_command" "$script_dir/rcon-command.py" \
+    127.0.0.1 "$RCON_PORT" "$RCON_PASSWORD" "$request_id" "$command"
+}
+
+assert_rcon_condition() {
+  local score_holder="$1"
+  local condition="$2"
+  local description="$3"
+  local response
+
+  rcon_command "scoreboard players set ${score_holder} suite_qa 0" >/dev/null
+  rcon_command "execute ${condition} run scoreboard players set ${score_holder} suite_qa 1" >/dev/null
+  response="$(rcon_command "scoreboard players get ${score_holder} suite_qa")"
+  if [[ ! "$response" =~ has[[:space:]]+1[[:space:]] ]]; then
+    echo "Packaged-suite assertion failed: ${description}" >&2
+    echo "RCON response: ${response}" >&2
+    return 1
+  fi
+}
+
+verify_workbench_config_migration() {
+  local fixture="$script_dir/../fixtures/workbench-historical/seamlessdeconstructor.json"
+  local legacy="$run_dir/config/seamlessdeconstructor.json"
+  local backup="$run_dir/config/seamlessdeconstructor.json.bak"
+  local canonical="$run_dir/config/seamless-deconstructing-workbench.json"
+
+  cmp --silent "$fixture" "$legacy"
+  cmp --silent "$fixture" "$backup"
+  "$python_command" -B - "$canonical" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+actual = json.loads(path.read_text(encoding="utf-8"))
+expected = {"processTicks": 20, "minLossPercent": 0, "maxLossPercent": 0}
+if actual != expected:
+    raise SystemExit(f"unexpected migrated Workbench config in {path}: {actual!r}")
+PY
+}
+
+capture_persistent_state() {
+  local destination="$1"
+  {
+    rcon_command "data get block ${WORKBENCH_POS} PendingOperation"
+    rcon_command "data get block ${WORKBENCH_POS} Progress"
+    rcon_command "data get block ${WORKBENCH_POS} MaxProgress"
+    rcon_command "data get block ${WORKBENCH_POS} MachineState"
+    rcon_command "data get block ${WORKBENCH_POS} BlockReason"
+    rcon_command "data get block ${HISTORICAL_WORKBENCH_POS} Items"
+    rcon_command "data get block ${HISTORICAL_WORKBENCH_POS} Progress"
+    rcon_command "data get block ${HISTORICAL_WORKBENCH_POS} MaxProgress"
+    rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] Item"
+    rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] ThrownStackCount"
+    rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] Embedded"
+    rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] EmbeddedX"
+    rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] EmbeddedY"
+    rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] EmbeddedZ"
+  } > "$destination"
+}
+
+prepare_persistence_fixtures() {
+  rcon_command "scoreboard objectives add suite_qa dummy" >/dev/null || true
+  rcon_command "forceload add 0 0" >/dev/null
+  rcon_command "setblock ${WORKBENCH_POS} seamlessdeconstructor:reverse_deconstructor" >/dev/null
+  # A full-durability iron pickaxe has deterministic, non-empty salvage at zero configured loss,
+  # so six incompatible full output stacks always force a pending operation instead of allowing
+  # a fractional recipe roll to produce no output.
+  rcon_command "item replace block ${WORKBENCH_POS} container.0 with minecraft:iron_pickaxe 1" >/dev/null
+  for slot in 2 3 4 5 6 7; do
+    rcon_command "item replace block ${WORKBENCH_POS} container.${slot} with minecraft:cobblestone 64" >/dev/null
+  done
+
+  local pending_ready=false
+  for _ in $(seq 1 80); do
+    rcon_command "scoreboard players set pending suite_qa 0" >/dev/null
+    rcon_command "execute if data block ${WORKBENCH_POS} PendingOperation run scoreboard players set pending suite_qa 1" >/dev/null
+    local response
+    response="$(rcon_command "scoreboard players get pending suite_qa")"
+    if [[ "$response" =~ has[[:space:]]+1[[:space:]] ]]; then
+      pending_ready=true
+      break
+    fi
+    sleep 1
+  done
+  if [[ "$pending_ready" != true ]]; then
+    echo "Workbench did not persist a blocked PendingOperation within 80 seconds" >&2
+    return 1
+  fi
+
+  # A component-bearing, already-embedded projectile exercises entity registry and exact stack
+  # persistence without relying on timing-sensitive collision geometry in a CI server.
+  rcon_command \
+    'summon swordthrow:thrown_sword 8 200 0 {Tags:["suite_embedded"],Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}},ThrownStackCount:3,HitBlock:1b,Embedded:1b,EmbeddedRoll:11.25f,EmbeddedYaw:90.0f,EmbeddedPitch:0.0f,EmbeddedX:8.0d,EmbeddedY:200.0d,EmbeddedZ:0.0d,NoGravity:1b}' \
+    >/dev/null
+
+  assert_rcon_condition \
+    sword \
+    'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}}}]' \
+    "component-bearing embedded Sword projectile was not created"
+
+  # This exact legacy payload contains only the historical eight-slot inventory and
+  # Progress/MaxProgress fields.  Loading it through `data merge block` invokes the same block
+  # entity deserializer used for a copied historical chunk, before the current serializer adds
+  # its backward-compatible fields.
+  rcon_command "tick freeze" >/dev/null
+  rcon_command "forceload add 512 0" >/dev/null
+  rcon_command "setblock ${HISTORICAL_WORKBENCH_POS} seamlessdeconstructor:reverse_deconstructor" >/dev/null
+  rcon_command "data merge block ${HISTORICAL_WORKBENCH_POS} ${historical_workbench_snbt}" >/dev/null
+  assert_rcon_condition \
+    history \
+    "if data block ${HISTORICAL_WORKBENCH_POS} ${historical_workbench_snbt}" \
+    "historical eight-slot Workbench payload did not load"
+
+  capture_persistent_state "$run_dir/qa-logs/persistent-state-before-reload.txt"
+  # Keep the historical chunk out of both the forced and spawn-loaded sets at the next boot so
+  # the current Workbench never ticks before the reload assertion freezes the server.
+  rcon_command "forceload remove 512 0" >/dev/null
+  rcon_command "save-all flush" >/dev/null
+}
+
+verify_reloaded_persistence() {
+  rcon_command "scoreboard objectives add suite_qa dummy" >/dev/null || true
+  rcon_command "tick freeze" >/dev/null
+  rcon_command "forceload add 512 0" >/dev/null
+  assert_rcon_condition \
+    pending \
+    "if data block ${WORKBENCH_POS} PendingOperation" \
+    "Workbench PendingOperation disappeared across reload"
+  assert_rcon_condition \
+    history \
+    "if data block ${HISTORICAL_WORKBENCH_POS} ${historical_workbench_snbt}" \
+    "historical Workbench inventory/progress changed across reload"
+  assert_rcon_condition \
+    sword \
+    'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}}}]' \
+    "embedded Sword projectile or its exact stack components changed across reload"
+
+  capture_persistent_state "$run_dir/qa-logs/persistent-state-after-reload.txt"
+  if ! cmp --silent \
+      "$run_dir/qa-logs/persistent-state-before-reload.txt" \
+      "$run_dir/qa-logs/persistent-state-after-reload.txt"; then
+    echo "Packaged persistent state changed across the stop/reload boundary" >&2
+    diff -u \
+      "$run_dir/qa-logs/persistent-state-before-reload.txt" \
+      "$run_dir/qa-logs/persistent-state-after-reload.txt" >&2 || true
+    return 1
+  fi
+  rcon_command "save-all flush" >/dev/null
+}
 
 download() {
   local url="$1"
@@ -133,8 +320,8 @@ printf '%s\n' \
   'level-name=suite-world' \
   'max-tick-time=120000' \
   'online-mode=false' \
-  'rcon.password=release-hardening-local-only' \
-  'rcon.port=25575' \
+  "rcon.password=${RCON_PASSWORD}" \
+  "rcon.port=${RCON_PORT}" \
   'server-ip=127.0.0.1' \
   'server-port=0' \
   'spawn-protection=0' \
@@ -142,6 +329,7 @@ printf '%s\n' \
 
 run_once() {
   local run_number="$1"
+  local assertion_callback="$2"
   local console_log="$run_dir/qa-logs/run-${run_number}-console.log"
   (
     cd "$run_dir"
@@ -171,12 +359,25 @@ run_once() {
     return 1
   fi
 
-  local python_command=python3
-  if ! command -v "$python_command" >/dev/null 2>&1; then
-    python_command=python
+  "$assertion_callback"
+  verify_workbench_config_migration
+
+  rcon_command "stop" > "$run_dir/qa-logs/run-${run_number}-stop-response.txt"
+  local stopped=false
+  for _ in $(seq 1 60); do
+    if ! kill -0 "$server_pid" 2>/dev/null; then
+      stopped=true
+      break
+    fi
+    sleep 1
+  done
+  if [[ "$stopped" != true ]]; then
+    echo "${loader} packaged server run ${run_number} ignored the stop command" >&2
+    kill "$server_pid" 2>/dev/null || true
+    wait "$server_pid" 2>/dev/null || true
+    active_server_pid=""
+    return 1
   fi
-  "$python_command" "$(dirname "$0")/rcon-command.py" \
-    127.0.0.1 25575 release-hardening-local-only "$run_number" stop
   local exit_code=0
   wait "$server_pid" || exit_code=$?
   active_server_pid=""
@@ -192,9 +393,9 @@ run_once() {
   fi
 }
 
-run_once 1
+run_once 1 prepare_persistence_fixtures
 test -f "$run_dir/suite-world/level.dat"
-run_once 2
+run_once 2 verify_reloaded_persistence
 test -f "$run_dir/suite-world/level.dat"
 
-printf '%s packaged suite started cleanly and reloaded the same world with five runtime jars.\n' "$loader"
+printf '%s packaged suite preserved exact Sword/Workbench state and migrated the historical Workbench fixture.\n' "$loader"

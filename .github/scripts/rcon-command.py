@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Send one authenticated Minecraft RCON command without third-party packages."""
+"""Send one authenticated Minecraft RCON command without third-party packages.
+
+The command response is written to stdout.  Keeping this helper dependency-free makes it
+usable in the packaged-suite jobs before any Python packages have been installed.
+"""
 
 from __future__ import annotations
 
@@ -28,18 +32,41 @@ def receive(sock: socket.socket) -> tuple[int, int, bytes]:
     return request_id, packet_type, bytes(data[8:-2])
 
 
-def main() -> None:
-    if len(sys.argv) != 6:
-        raise SystemExit("usage: rcon-command.py HOST PORT PASSWORD REQUEST_ID COMMAND")
-    host, raw_port, password, raw_request_id, command = sys.argv[1:]
-    request_id = int(raw_request_id)
-    with socket.create_connection((host, int(raw_port)), timeout=10) as connection:
+def run_command(
+    host: str,
+    port: int,
+    password: str,
+    request_id: int,
+    command: str,
+) -> str:
+    """Authenticate, execute one command, and return its first RCON response packet."""
+
+    with socket.create_connection((host, port), timeout=10) as connection:
         connection.settimeout(10)
         connection.sendall(packet(request_id, 3, password))
         response_id, _, _ = receive(connection)
         if response_id != request_id:
             raise RuntimeError("Minecraft RCON authentication failed")
-        connection.sendall(packet(request_id + 1, 2, command))
+
+        command_request_id = request_id + 1
+        connection.sendall(packet(command_request_id, 2, command))
+        response_id, _, payload = receive(connection)
+        if response_id != command_request_id:
+            raise RuntimeError(
+                "Minecraft RCON returned a response for an unexpected request "
+                f"({response_id}, expected {command_request_id})"
+            )
+        return payload.decode("utf-8", errors="replace")
+
+
+def main() -> None:
+    if len(sys.argv) != 6:
+        raise SystemExit("usage: rcon-command.py HOST PORT PASSWORD REQUEST_ID COMMAND")
+    host, raw_port, password, raw_request_id, command = sys.argv[1:]
+    request_id = int(raw_request_id)
+    response = run_command(host, int(raw_port), password, request_id, command)
+    if response:
+        print(response)
 
 
 if __name__ == "__main__":
