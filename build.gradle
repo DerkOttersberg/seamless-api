@@ -156,6 +156,32 @@ tasks.register('verifyLoaderJars') {
     }
 }
 
+def suiteLockPython = providers.gradleProperty('pythonExecutable').orElse(
+        providers.provider { System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows') ? 'python' : 'python3' }
+)
+
+tasks.register('testSuiteLockVerifier', Exec) {
+    group = 'verification'
+    description = 'Runs valid and invalid manifest fixtures against the suite-lock verifier.'
+    workingDir rootProject.projectDir
+    environment 'PYTHONDONTWRITEBYTECODE', '1'
+    commandLine suiteLockPython.get(),
+            '-B',
+            '.github/scripts/tests/test_verify_suite_lock.py'
+}
+
+tasks.register('verifySuiteLock', Exec) {
+    group = 'verification'
+    description = 'Validates suite-lock.json before the locked release suite is built.'
+    dependsOn tasks.named('testSuiteLockVerifier')
+    workingDir rootProject.projectDir
+    environment 'PYTHONDONTWRITEBYTECODE', '1'
+    commandLine suiteLockPython.get(),
+            '-B',
+            '.github/scripts/verify_suite_lock.py',
+            'suite-lock.json'
+}
+
 tasks.named('assemble') {
     dependsOn subprojects.collect { it.tasks.named('assemble') }
 }

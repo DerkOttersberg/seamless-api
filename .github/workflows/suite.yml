@@ -27,31 +27,13 @@ jobs:
           distribution: temurin
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Test the suite-lock validator
+        run: python3 -B .github/scripts/tests/test_verify_suite_lock.py
       - name: Check out locked commits
         shell: bash
         run: |
           set -euo pipefail
-          jq -e '
-            .schemaVersion == 1 and
-            .minecraft == "26.2" and
-            .java == 25 and
-            (.repositories | length == 5) and
-            ([.repositories[].directory] | unique | length) == 5 and
-            ([.repositories[].releaseOrder] | unique | length) == 5 and
-            all(.repositories[];
-              ((.directory | type) == "string") and
-              ((.directory // "") | test("^[a-z0-9][a-z0-9-]*$")) and
-              ((.repository | type) == "string") and
-              ((.repository // "") | test("^DerkOttersberg/[A-Za-z0-9._-]+$")) and
-              ((.artifactBase | type) == "string") and
-              ((.artifactBase // "") | test("^[a-z0-9][a-z0-9-]*$")) and
-              ((.artifactVersion | type) == "string") and
-              ((.artifactVersion // "") | length > 0) and
-              ((.commit | type) == "string") and
-              ((.commit // "") | test("^[0-9a-f]{40}$")) and
-              ((.releaseOrder | type) == "number")
-            )
-          ' suite-lock.json >/dev/null
+          python3 -B .github/scripts/verify_suite_lock.py suite-lock.json
           mkdir suite
           while IFS=$'\t' read -r directory repository commit; do
             git -c init.defaultBranch=main init "suite/$directory"
