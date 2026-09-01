@@ -33,17 +33,12 @@ def valid_manifest() -> dict:
         )
     return {
         "schemaVersion": 1,
-        "suiteVersion": "2.1.0+mc26.2",
+        "suiteVersion": VERIFY.EXPECTED_SUITE_VERSION,
         "minecraft": "26.2",
         "java": 25,
         "gradle": "9.5.1",
-        "tooling": {"architecturyPlugin": "3.5.169", "architecturyLoom": "1.17.491"},
-        "loaders": {
-            "fabricLoader": "0.19.3",
-            "fabricApi": "0.159.0+26.2",
-            "forge": "26.2-65.1.3",
-            "neoforge": "26.2.0.75",
-        },
+        "tooling": copy.deepcopy(VERIFY.EXPECTED_TOOLING),
+        "loaders": copy.deepcopy(VERIFY.EXPECTED_LOADERS),
         "repositories": repositories,
     }
 
@@ -74,10 +69,20 @@ class SuiteLockVerifierTest(unittest.TestCase):
         manifest["repositories"][0]["commit"] = "not-a-commit"
         self.assertTrue(any("Git SHA" in error for error in VERIFY.validate_manifest(manifest)))
 
-    def test_loader_values_must_be_non_empty(self) -> None:
+    def test_rejects_wrong_suite_version(self) -> None:
         manifest = valid_manifest()
-        manifest["loaders"]["forge"] = ""
-        self.assertTrue(any("loaders.forge" in error for error in VERIFY.validate_manifest(manifest)))
+        manifest["suiteVersion"] = "2.0.0+mc26.2"
+        self.assertTrue(any("suiteVersion" in error for error in VERIFY.validate_manifest(manifest)))
+
+    def test_rejects_wrong_tooling_pin(self) -> None:
+        manifest = valid_manifest()
+        manifest["tooling"]["architecturyLoom"] = "1.17.490"
+        self.assertTrue(any("tooling" in error for error in VERIFY.validate_manifest(manifest)))
+
+    def test_rejects_wrong_loader_pin(self) -> None:
+        manifest = valid_manifest()
+        manifest["loaders"]["fabricApi"] = "0.158.0+26.2"
+        self.assertTrue(any("loaders" in error for error in VERIFY.validate_manifest(manifest)))
 
     def test_loader_rejects_duplicate_json_keys(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

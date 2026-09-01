@@ -48,8 +48,19 @@ EXPECTED_REPOSITORIES = {
     },
 }
 
+EXPECTED_SUITE_VERSION = "2.1.0+mc26.2"
+EXPECTED_TOOLING = {
+    "architecturyPlugin": "3.5.169",
+    "architecturyLoom": "1.17.491",
+}
+EXPECTED_LOADERS = {
+    "fabricLoader": "0.19.3",
+    "fabricApi": "0.159.0+26.2",
+    "forge": "26.2-65.1.3",
+    "neoforge": "26.2.0.75",
+}
+
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
-SUITE_VERSION_PATTERN = re.compile(r"^\d+\.\d+\.\d+\+mc26\.2$")
 
 
 class DuplicateKeyError(ValueError):
@@ -84,27 +95,9 @@ def validate_manifest(manifest: Any) -> list[str]:
     require_exact("minecraft", "26.2")
     require_exact("java", 25)
     require_exact("gradle", "9.5.1")
-
-    suite_version = manifest.get("suiteVersion")
-    if not isinstance(suite_version, str) or not SUITE_VERSION_PATTERN.fullmatch(suite_version):
-        errors.append("suiteVersion must use <semver>+mc26.2")
-
-    tooling = manifest.get("tooling")
-    if not isinstance(tooling, dict):
-        errors.append("tooling must be an object")
-    else:
-        for key in ("architecturyPlugin", "architecturyLoom"):
-            if not isinstance(tooling.get(key), str) or not tooling[key].strip():
-                errors.append(f"tooling.{key} must be a non-empty string")
-
-    loaders = manifest.get("loaders")
-    required_loaders = ("fabricLoader", "fabricApi", "forge", "neoforge")
-    if not isinstance(loaders, dict):
-        errors.append("loaders must be an object")
-    else:
-        for key in required_loaders:
-            if not isinstance(loaders.get(key), str) or not loaders[key].strip():
-                errors.append(f"loaders.{key} must be a non-empty string")
+    require_exact("suiteVersion", EXPECTED_SUITE_VERSION)
+    require_exact("tooling", EXPECTED_TOOLING)
+    require_exact("loaders", EXPECTED_LOADERS)
 
     repositories = manifest.get("repositories")
     if not isinstance(repositories, list):
