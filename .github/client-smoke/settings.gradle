@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.architectury.dev/' }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.neoforged.net/releases/' }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+def selectedLoader = providers.gradleProperty('clientLoader').orElse('fabric').get()
+if (!(selectedLoader in ['fabric', 'forge', 'neoforge'])) {
+    throw new GradleException("Unsupported clientLoader: ${selectedLoader}")
+}
+
+gradle.beforeProject { project ->
+    project.ext.set('loom.platform', selectedLoader)
+}
+
+rootProject.name = 'minecraft-26.2-suite-client-smoke'

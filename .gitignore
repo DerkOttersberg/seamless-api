@@ -4,6 +4,8 @@ bin/
 out/
 *.class
 *.jar
+__pycache__/
+*.py[cod]
 !gradle/wrapper/gradle-wrapper.jar
 .idea/
 *.iml

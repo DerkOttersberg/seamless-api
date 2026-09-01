@@ -29,6 +29,15 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew :common:check :${{ matrix.loader }}:check :${{ matrix.loader }}:build
+      - name: Upload ${{ matrix.loader }} reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seamless-api-${{ matrix.loader }}-reports
+          if-no-files-found: ignore
+          path: |
+            **/build/reports/**
+            **/build/test-results/**
 
   verification:
     runs-on: ubuntu-24.04
@@ -40,3 +49,12 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew clean check build
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seamless-api-verification-reports
+          if-no-files-found: ignore
+          path: |
+            **/build/reports/**
+            **/build/test-results/**

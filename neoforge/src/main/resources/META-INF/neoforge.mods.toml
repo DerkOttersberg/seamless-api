@@ -16,6 +16,9 @@ versionRange="${neo_version_range}"
 ordering="NONE"
 side="BOTH"
 
+[features.seamlessapi]
+javaVersion="[25,)"
+
 [[dependencies.seamlessapi]]
 modId="minecraft"
 type="required"

@@ -1,0 +1,6 @@
+version:4903
+fullscreen:false
+onboardAccessibility:false
+skipMultiplayerWarning:true
+tutorialStep:none
+startedCleanly:true

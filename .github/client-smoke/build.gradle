@@ -1,0 +1,59 @@
+plugins {
+    id 'dev.architectury.loom-no-remap' version '1.17.491'
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://maven.neoforged.net/releases/' }
+}
+
+def selectedLoader = providers.gradleProperty('clientLoader').orElse('fabric').get()
+def selectedRunDirectory = providers.gradleProperty('clientRunDir')
+        .map { file(it) }
+        .orElse(layout.buildDirectory.dir("run/${selectedLoader}").map { it.asFile })
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:26.2'
+    if (selectedLoader == 'fabric') {
+        implementation 'net.fabricmc:fabric-loader:0.19.3'
+    } else if (selectedLoader == 'forge') {
+        forge 'net.minecraftforge:forge:26.2-65.1.3'
+    } else {
+        neoForge 'net.neoforged:neoforge:26.2.0.75'
+    }
+}
+
+// Forge 26.2 is released with official names. Loom's legacy naming services try to remap the
+// already-named access transformer and make the userdev client reject Forge's own entries.
+// This matches the production repositories' proven Forge run configuration.
+if (selectedLoader == 'forge') {
+    configurations.forgeRuntimeLibrary {
+        exclude group: 'dev.architectury', module: 'architectury-naming-service'
+        exclude group: 'dev.architectury', module: 'architectury-mixin-remapper-service'
+    }
+}
+
+// This contains no gameplay source mod. NeoForge sees the documented metadata-only launch anchor;
+// the five application mods (plus Fabric API/optional JEI) come only from packaged jars in run/mods.
+loom {
+    runs {
+        client {
+            client()
+            runDir selectedRunDirectory.get().absolutePath
+            programArgs '--quickPlaySingleplayer', 'suite-world'
+            if (selectedLoader == 'forge') {
+                def identityMappings = file('official-named-empty.tiny').absolutePath
+                property 'architectury.naming.mappingsPath', identityMappings
+                property 'architectury.naming.sourceNamespace', 'official'
+                property 'architectury.mixinRemapper.mappingsPath', identityMappings
+                property 'architectury.mixinRemapper.sourceNamespace', 'official'
+            }
+        }
+    }
+}

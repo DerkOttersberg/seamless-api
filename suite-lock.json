@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "suiteVersion": "2.0.0+mc26.2",
+  "suiteVersion": "2.1.0+mc26.2",
   "minecraft": "26.2",
   "java": 25,
   "gradle": "9.5.1",
@@ -10,7 +10,7 @@
   },
   "loaders": {
     "fabricLoader": "0.19.3",
-    "fabricApi": "0.158.0+26.2",
+    "fabricApi": "0.159.0+26.2",
     "forge": "26.2-65.1.3",
     "neoforge": "26.2.0.75"
   },
@@ -20,7 +20,8 @@
       "repository": "DerkOttersberg/seamless-api",
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
-      "commit": "6bd3c1260323c04f0dd40da8eb040bb3480e811e",
+      "artifactVersion": "2.0.1+mc26.2",
+      "commit": "f05f7b04a85c47626555d21816f507dea0889b99",
       "releaseOrder": 1
     },
     {
@@ -28,7 +29,8 @@
       "repository": "DerkOttersberg/pretty-meteors-with-trails",
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
-      "commit": "daf669468dd8f35569feb8c34a6ab7a4a768e992",
+      "artifactVersion": "2.0.1+mc26.2",
+      "commit": "996ec7329cba48f7b998b4bb90702c297b0eed07",
       "releaseOrder": 2
     },
     {
@@ -36,7 +38,8 @@
       "repository": "DerkOttersberg/seamless-deconstructing-workbench",
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
-      "commit": "30606c263e47afca7895d2d5f40d69cc421e780e",
+      "artifactVersion": "2.1.0+mc26.2",
+      "commit": "1655b12edc10eb2f2459aeab05f7ad29c136c0ed",
       "releaseOrder": 3
     },
     {
@@ -44,7 +47,8 @@
       "repository": "DerkOttersberg/seamless-crafting",
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
-      "commit": "5d3c4644116429450d82e5fbcfacf244e8a033b0",
+      "artifactVersion": "2.1.0+mc26.2",
+      "commit": "4bc7eddd88adad175b8ec921eaad88c9c172cf57",
       "releaseOrder": 4
     },
     {
@@ -52,7 +56,8 @@
       "repository": "DerkOttersberg/sword-throw",
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
-      "commit": "93fa1b59d96e31269ddeff1665a539be5bb8f8a2",
+      "artifactVersion": "2.1.0+mc26.2",
+      "commit": "2cb2235d9674bee71e11df32a60ed153ffc9a6d6",
       "releaseOrder": 5
     }
   ],
