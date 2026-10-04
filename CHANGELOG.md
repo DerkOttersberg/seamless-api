@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.2+mc1.20.1
+
+- Backport the current shared gameplay architecture to Minecraft 1.20.1, Java 17,
+  Fabric and Forge. NeoForge is intentionally excluded from this line.
+- Restore remapped loader jars, mixin refmaps, legacy NBT/data formats and bounded
+  networking without changing public compatibility or registry namespaces.
+- Preserve current config migration, UI clarity and item-conservation safeguards.
+
+
 ## 2.0.2+mc26.3
 
 - Preserve the public `com.derko.seamlessapi` contracts; update the Java 25 multi-loader build and 26.3-only metadata.

@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.architectury.dev/' }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+}
+plugins { id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0' }
+def selectedLoader = providers.gradleProperty('clientLoader').getOrElse('fabric')
+if (!(selectedLoader in ['fabric', 'forge'])) throw new GradleException('Only Fabric/Forge are supported')
+gradle.beforeProject { project -> project.ext.set('loom.platform', selectedLoader) }
+rootProject.name = 'isolated-mc1201-client-qa'

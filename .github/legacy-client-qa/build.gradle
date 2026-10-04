@@ -1,0 +1,60 @@
+plugins { id 'dev.architectury.loom' version '1.17.493' }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.minecraftforge.net/' }
+}
+def selectedLoader = providers.gradleProperty('clientLoader').getOrElse('fabric')
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+sourceSets.main {
+    java.srcDir "src/${selectedLoader}/java"
+    resources.srcDir "src/${selectedLoader}/resources"
+}
+dependencies {
+    minecraft 'com.mojang:minecraft:1.20.1'
+    mappings loom.officialMojangMappings()
+    if (selectedLoader == 'fabric') modImplementation 'net.fabricmc:fabric-loader:0.19.5'
+    else {
+        forge 'net.minecraftforge:forge:1.20.1-47.4.26'
+        // Forge's Loom development client uses named members, while release
+        // jars use SRG. Remap release inputs through the supported mod classpath.
+        modRuntimeOnly fileTree(providers.gradleProperty('clientRunDir').get() + '/artifact-inputs') { include '*.jar' }
+    }
+}
+tasks.withType(JavaCompile).configureEach { options.release = 17 }
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+    maxHeapSize = '1G'
+    jvmArgs '-XX:ActiveProcessorCount=2'
+    ['qa.settings', 'qa.expectmeteors', 'qa.expectweapons', 'qa.expectworkbench', 'qa.expectcrafting', 'qa.menuOnly'].each { key ->
+        if (providers.gradleProperty(key).isPresent()) systemProperty key, providers.gradleProperty(key).get()
+    }
+}
+loom {
+    if (selectedLoader == 'forge') forge { mixinConfig 'qa1201.mixins.json' }
+    mixin { useLegacyMixinAp = true; defaultRefmapName = 'qa1201.refmap.json' }
+    mods { qa_client_smoke { sourceSet sourceSets.main } }
+    runs {
+        client {
+            client()
+            runDir providers.gradleProperty('clientRunDir').get()
+            if (!providers.gradleProperty('qa.menuOnly').isPresent()) programArgs '--quickPlaySingleplayer', 'qa-world'
+        }
+    }
+}
+tasks.named('jar', Jar) { manifest { attributes 'MixinConfigs': 'qa1201.mixins.json' } }
+
+tasks.named('runClient') {
+    def qaDirectory = providers.gradleProperty('clientRunDir').map { file(it) }
+    doFirst {
+        // Only generated markers in this disposable QA profile.
+        new File(qaDirectory.get(), 'client-qa-passed.txt').delete()
+        new File(qaDirectory.get(), 'client-qa-failed.txt').delete()
+    }
+    doLast {
+        if (!new File(qaDirectory.get(), 'client-qa-passed.txt').isFile()
+                || new File(qaDirectory.get(), 'client-qa-failed.txt').exists()) {
+            throw new GradleException('Client closed without completing the isolated QA scenario')
+        }
+    }
+}

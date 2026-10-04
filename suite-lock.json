@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "suiteVersion": "2.1.1+mc26.3",
-  "minecraft": "26.3",
-  "java": 25,
+  "suiteVersion": "2.1.1+mc1.20.1",
+  "minecraft": "1.20.1",
+  "java": 17,
   "gradle": "9.6.0",
   "tooling": {
     "architecturyPlugin": "3.5.169",
@@ -10,9 +10,8 @@
   },
   "loaders": {
     "fabricLoader": "0.19.5",
-    "fabricApi": "0.161.0+26.3",
-    "forge": "26.3-66.0.9",
-    "neoforge": "26.3.0.48-beta"
+    "fabricApi": "0.92.12+1.20.1",
+    "forge": "1.20.1-47.4.26"
   },
   "repositories": [
     {
@@ -20,7 +19,7 @@
       "repository": "DerkOttersberg/seamless-api",
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
-      "artifactVersion": "2.0.2+mc26.3",
+      "artifactVersion": "2.0.2+mc1.20.1",
       "commit": "aa8e793995b0deaa85f5283e3056eb702bc8611a",
       "releaseOrder": 1
     },
@@ -29,7 +28,7 @@
       "repository": "DerkOttersberg/pretty-meteors-with-trails",
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
-      "artifactVersion": "2.0.2+mc26.3",
+      "artifactVersion": "2.0.2+mc1.20.1",
       "commit": "a083241a8b2134078431d329560bbefc72cf4a69",
       "releaseOrder": 2
     },
@@ -38,7 +37,7 @@
       "repository": "DerkOttersberg/seamless-deconstructing-workbench",
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
-      "artifactVersion": "2.1.1+mc26.3",
+      "artifactVersion": "2.1.1+mc1.20.1",
       "commit": "eb02c6117078f80058d5b702f8c21cd651bf7383",
       "releaseOrder": 3
     },
@@ -47,7 +46,7 @@
       "repository": "DerkOttersberg/seamless-crafting",
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
-      "artifactVersion": "2.1.1+mc26.3",
+      "artifactVersion": "2.1.1+mc1.20.1",
       "commit": "86219478066797556e2fc2ae17973e33a995bdb1",
       "releaseOrder": 4
     },
@@ -56,10 +55,10 @@
       "repository": "DerkOttersberg/sword-throw",
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
-      "artifactVersion": "2.1.1+mc26.3",
+      "artifactVersion": "2.1.1+mc1.20.1",
       "commit": "4ab46924de387d43384872d5b3b5fc5534e1b29c",
       "releaseOrder": 5
     }
   ],
-  "note": "Exact Minecraft 26.3 source commits. The Seamless API entry pins the verified port source commit preceding this manifest update, avoiding a self-referential commit hash. release-artifacts.json identifies the separately tested and submitted CurseForge binaries; Git checkout line-ending normalization may change archive bytes without changing runtime content. Remote CI is independent of local acceptance."
+  "note": "Minecraft 1.20.1 Fabric/Forge only; Java 25 hosts Gradle, Java 17 compiles/runs Minecraft. Source pins will be updated to tested backport commits before cutover. No 1.20.1 publication or remote CI pass is implied."
 }

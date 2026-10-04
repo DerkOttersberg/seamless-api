@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom-no-remap'
+    id 'dev.architectury.loom'
 }
 
 base {
@@ -8,15 +8,19 @@ base {
 
 dependencies {
     minecraft libs.minecraft
-    implementation libs.fabric.loader
-    implementation project(':common')
+    mappings loom.officialMojangMappings()
+    modImplementation libs.fabric.loader
+}
+
+sourceSets.main {
+    java.srcDir rootProject.file('common/src/main/java')
+    resources.srcDir rootProject.file('common/src/main/resources')
 }
 
 loom {
     mods {
         seamlessapi {
             sourceSet sourceSets.main
-            sourceSet project(':common').sourceSets.main
         }
     }
 }
@@ -29,8 +33,11 @@ processResources {
 }
 
 tasks.named('jar', Jar) {
-    from project(':common').sourceSets.main.output
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveFileName = "${rootProject.archives_base_name}-${project.version}-fabric-dev.jar"
+}
+
+tasks.named('remapJar') {
     archiveFileName = "${rootProject.archives_base_name}-${project.version}-fabric.jar"
 }
 
@@ -39,3 +46,5 @@ tasks.named('sourcesJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName = "${rootProject.archives_base_name}-${project.version}-fabric-sources.jar"
 }
+
+tasks.named('remapSourcesJar') { archiveFileName = "${rootProject.archives_base_name}-${project.version}-fabric-sources.jar" }

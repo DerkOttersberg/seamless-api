@@ -23,7 +23,7 @@ public final class TrailMath {
         }
 
         List<SeamlessVec3> smoothed = new ArrayList<>((points.size() - 1) * subdivisions + 1);
-        smoothed.add(points.getFirst());
+        smoothed.add(points.get(0));
 
         for (int index = 0; index < points.size() - 1; index++) {
             SeamlessVec3 previous = index > 0 ? points.get(index - 1) : points.get(index);

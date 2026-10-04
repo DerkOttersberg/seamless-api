@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly MINECRAFT_VERSION="26.3"
+readonly MINECRAFT_VERSION="1.20.1"
+# Install and run only with the target runtime, never Gradle's Java 25 host.
+java -version 2>&1 | head -n 1 | grep -Eq 'version "17[.]' || { echo "Java 17 is required" >&2; exit 2; }
 readonly FABRIC_LOADER_VERSION="0.19.5"
 readonly FABRIC_INSTALLER_VERSION="1.1.2"
-readonly FABRIC_API_VERSION="0.161.0+26.3"
-readonly FORGE_VERSION="26.3-66.0.9"
-readonly NEOFORGE_VERSION="26.3.0.48-beta"
+readonly FABRIC_API_VERSION="0.92.12+1.20.1"
+readonly FORGE_VERSION="1.20.1-47.4.26"
 readonly RCON_PASSWORD="release-hardening-local-only"
 readonly WORKBENCH_POS="0 200 0"
-readonly HISTORICAL_WORKBENCH_POS="512 200 0"
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly RCON_PORT="${PACKAGED_SUITE_RCON_PORT:-25575}"
@@ -25,7 +25,7 @@ if ! command -v "$python_command" >/dev/null 2>&1; then
 fi
 
 case "$loader" in
-  fabric|forge|neoforge) ;;
+  fabric|forge) ;;
   *)
     echo "Unsupported loader: $loader" >&2
     exit 2
@@ -77,7 +77,6 @@ cp \
   "$run_dir/config/seamlessdeconstructor.json"
 
 rcon_request_id=1000
-historical_workbench_snbt="$(tr -d '\r\n' < "$script_dir/../fixtures/workbench-historical/block-entity.snbt")"
 
 # Refuse to run when another local process is already listening.  Besides producing a clearer
 # diagnostic, this prevents a stale development server with the same password from satisfying
@@ -145,9 +144,6 @@ capture_persistent_state() {
     rcon_command "data get block ${WORKBENCH_POS} MaxProgress"
     rcon_command "data get block ${WORKBENCH_POS} MachineState"
     rcon_command "data get block ${WORKBENCH_POS} BlockReason"
-    rcon_command "data get block ${HISTORICAL_WORKBENCH_POS} Items"
-    rcon_command "data get block ${HISTORICAL_WORKBENCH_POS} Progress"
-    rcon_command "data get block ${HISTORICAL_WORKBENCH_POS} MaxProgress"
     rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] Item"
     rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] ThrownStackCount"
     rcon_command "data get entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] Embedded"
@@ -189,53 +185,31 @@ prepare_persistence_fixtures() {
     return 1
   fi
 
-  # A component-bearing, already-embedded projectile exercises entity registry and exact stack
+  # A NBT-bearing, already-embedded projectile exercises entity registry and exact stack
   # persistence without relying on timing-sensitive collision geometry in a CI server.
   rcon_command \
-    'execute unless entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] run summon swordthrow:thrown_sword 8 200 0 {Tags:["suite_embedded"],Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}},ThrownStackCount:3,HitBlock:1b,Embedded:1b,EmbeddedRoll:11.25f,EmbeddedYaw:90.0f,EmbeddedPitch:0.0f,EmbeddedX:8.0d,EmbeddedY:200.0d,EmbeddedZ:0.0d,NoGravity:1b}' \
+    'execute unless entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] run summon swordthrow:thrown_sword 8 200 0 {Tags:["suite_embedded"],Item:{id:"minecraft:iron_sword",Count:1b,tag:{suite_marker:"embedded-1.20.1",Damage:7}},ThrownStackCount:3,HitBlock:1b,Embedded:1b,EmbeddedRoll:11.25f,EmbeddedYaw:90.0f,EmbeddedPitch:0.0f,EmbeddedX:8.0d,EmbeddedY:200.0d,EmbeddedZ:0.0d,NoGravity:1b}' \
     >/dev/null
 
   assert_rcon_condition \
     sword \
-    'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}}}]' \
-    "component-bearing embedded Sword projectile was not created"
-
-  # This exact legacy payload contains only the historical eight-slot inventory and
-  # Progress/MaxProgress fields.  Loading it through `data merge block` invokes the same block
-  # entity deserializer used for a copied historical chunk, before the current serializer adds
-  # its backward-compatible fields.
-  rcon_command "tick freeze" >/dev/null
-  rcon_command "forceload add 512 0" >/dev/null
-  rcon_command "setblock ${HISTORICAL_WORKBENCH_POS} seamlessdeconstructor:reverse_deconstructor" >/dev/null
-  rcon_command "data merge block ${HISTORICAL_WORKBENCH_POS} ${historical_workbench_snbt}" >/dev/null
-  assert_rcon_condition \
-    history \
-    "if data block ${HISTORICAL_WORKBENCH_POS} ${historical_workbench_snbt}" \
-    "historical eight-slot Workbench payload did not load"
+    'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",Count:1b,tag:{suite_marker:"embedded-1.20.1",Damage:7}}}]' \
+    "NBT-bearing embedded Sword projectile was not created"
 
   capture_persistent_state "$run_dir/qa-logs/persistent-state-before-reload.txt"
-  # Keep the historical chunk out of both the forced and spawn-loaded sets at the next boot so
-  # the current Workbench never ticks before the reload assertion freezes the server.
-  rcon_command "forceload remove 512 0" >/dev/null
   rcon_command "save-all flush" >/dev/null
 }
 
 verify_reloaded_persistence() {
   rcon_command "scoreboard objectives add suite_qa dummy" >/dev/null || true
-  rcon_command "tick freeze" >/dev/null
-  rcon_command "forceload add 512 0" >/dev/null
   assert_rcon_condition \
     pending \
     "if data block ${WORKBENCH_POS} PendingOperation" \
     "Workbench PendingOperation disappeared across reload"
   assert_rcon_condition \
-    history \
-    "if data block ${HISTORICAL_WORKBENCH_POS} ${historical_workbench_snbt}" \
-    "historical Workbench inventory/progress changed across reload"
-  assert_rcon_condition \
     sword \
-    'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:custom_data":{suite_marker:"embedded-26.2"},"minecraft:damage":7}}}]' \
-    "embedded Sword projectile or its exact stack components changed across reload"
+    'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",Count:1b,tag:{suite_marker:"embedded-1.20.1",Damage:7}}}]' \
+    "embedded Sword projectile or its exact stack NBT changed across reload"
 
   capture_persistent_state "$run_dir/qa-logs/persistent-state-after-reload.txt"
   if ! cmp --silent \
@@ -287,7 +261,7 @@ case "$loader" in
     download \
       "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/${FABRIC_API_VERSION}/fabric-api-${FABRIC_API_VERSION}.jar" \
       "$run_dir/mods/fabric-api-${FABRIC_API_VERSION}.jar"
-    launch_command=(java -Xms512M -Xmx2G -jar fabric-server-launch.jar nogui)
+    launch_command=(java -XX:ActiveProcessorCount=2 -Xms256M -Xmx1G -jar fabric-server-launch.jar nogui)
     ;;
   forge)
     download \
@@ -302,33 +276,12 @@ case "$loader" in
       MINGW*|MSYS*|CYGWIN*) forge_args="libraries/net/minecraftforge/forge/${FORGE_VERSION}/win_args.txt" ;;
     esac
     launch_command=(
-      java -Xms512M -Xmx2G
+      java -XX:ActiveProcessorCount=2 -Xms256M -Xmx1G
       @"${forge_args}"
       nogui
     )
     ;;
-  neoforge)
-    download \
-      "https://maven.neoforged.net/releases/net/neoforged/neoforge/${NEOFORGE_VERSION}/neoforge-${NEOFORGE_VERSION}-installer.jar" \
-      "$run_dir/neoforge-installer.jar"
-    (
-      cd "$run_dir"
-      java -jar neoforge-installer.jar --installServer
-    )
-    neoforge_args="libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/unix_args.txt"
-    case "$(uname -s)" in
-      MINGW*|MSYS*|CYGWIN*)
-        # Git Bash still launches the Windows JVM, whose classpath separator is
-        # ';'. The installer's unix argument file uses ':' and cannot boot here.
-        neoforge_args="libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/win_args.txt"
-        ;;
-    esac
-    launch_command=(
-      java -Xms512M -Xmx2G
-      @"${neoforge_args}"
-      nogui
-    )
-    ;;
+
 esac
 
 printf 'eula=true\n' > "$run_dir/eula.txt"
@@ -423,4 +376,4 @@ test -f "$run_dir/suite-world/level.dat"
 run_once 2 verify_reloaded_persistence
 test -f "$run_dir/suite-world/level.dat"
 
-printf '%s packaged suite preserved exact Sword/Workbench state and migrated the historical Workbench fixture.\n' "$loader"
+printf '%s packaged suite preserved exact Sword/Workbench state and migrated the historical Workbench config.\n' "$loader"

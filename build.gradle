@@ -35,6 +35,12 @@ subprojects {
         options.release = libs.versions.java.get().toInteger()
     }
 
+    tasks.withType(JavaExec).configureEach {
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInteger())
+        }
+    }
+
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
     }
@@ -76,7 +82,7 @@ tasks.register('verifyCommonIsolation') {
 tasks.register('verifyLoaderJars') {
     group = 'verification'
     description = 'Checks that each distributable jar contains only its own loader metadata.'
-    dependsOn ':fabric:jar', ':forge:jar', ':neoforge:jar'
+    dependsOn ':fabric:remapJar', ':forge:remapJar'
 
     doLast {
         def specifications = [
@@ -87,20 +93,23 @@ tasks.register('verifyLoaderJars') {
             forge: [
                 expected: 'META-INF/mods.toml',
                 forbidden: ['fabric.mod.json', 'META-INF/neoforge.mods.toml']
-            ],
-            neoforge: [
-                expected: 'META-INF/neoforge.mods.toml',
-                forbidden: ['fabric.mod.json', 'META-INF/mods.toml']
             ]
         ]
 
         specifications.each { loader, specification ->
-            def archive = project(":${loader}").tasks.named('jar', Jar).get().archiveFile.get().asFile
+            def archive = project(":${loader}").tasks.named('remapJar').get().archiveFile.get().asFile
             def expectedName = "${rootProject.archives_base_name}-${project.version}-${loader}.jar"
             if (archive.name != expectedName) {
                 throw new GradleException("Expected ${expectedName}, found ${archive.name}")
             }
             new java.util.zip.ZipFile(archive).withCloseable { zip ->
+                zip.entries().findAll { it.name.endsWith('.class') }.each { entry ->
+                    new DataInputStream(zip.getInputStream(entry)).withCloseable { header ->
+                        if (header.readInt() != -889275714) throw new GradleException("Invalid class: ${entry.name}")
+                        header.readUnsignedShort()
+                        if (header.readUnsignedShort() > 61) throw new GradleException("Not Java 17 compatible: ${entry.name}")
+                    }
+                }
                 if (zip.getEntry(specification.expected) == null) {
                     throw new GradleException("${archive.name} is missing ${specification.expected}")
                 }
@@ -130,7 +139,7 @@ tasks.register('verifyLoaderJars') {
                     if (metadata.depends.values().any { it == '*' }) {
                         throw new GradleException("${archive.name} contains a wildcard dependency")
                     }
-                    if (metadata.depends.minecraft != '~26.3' || metadata.depends.java != '>=25') {
+                    if (metadata.depends.minecraft != '1.20.1' || metadata.depends.java != '>=17') {
                         throw new GradleException("${archive.name} contains unexpected Minecraft/Java dependency ranges")
                     }
                 } else {
@@ -138,13 +147,9 @@ tasks.register('verifyLoaderJars') {
                     if (metadata.contains('${')) {
                         throw new GradleException("${archive.name} contains unprocessed metadata placeholders")
                     }
-                    def requiredValues = loader == 'forge'
-                            ? ['modLoader="javafml"', 'loaderVersion="[66,)"', 'license="MIT"',
-                               "version=\"${project.version}\"", 'modId="forge"', 'versionRange="[66.0.9,67)"',
-                               'modId="minecraft"', 'versionRange="[26.3,26.4)"', 'javaVersion="[25,)"']
-                            : ['license="MIT"', "version=\"${project.version}\"", 'modId="neoforge"',
-                               'versionRange="[26.3.0.48-beta,26.4)"', 'modId="minecraft"',
-                               'versionRange="[26.3,26.4)"', 'javaVersion="[25,)"']
+                    def requiredValues = ['modLoader="javafml"', 'loaderVersion="[47,)"', 'license="MIT"',
+                            "version=\"${project.version}\"", 'modId="forge"', 'versionRange="[47.1,48)"',
+                            'modId="minecraft"', 'versionRange="[1.20.1,1.20.2)"', 'javaVersion="[17,)"']
                     requiredValues.each { value ->
                         if (!metadata.contains(value)) {
                             throw new GradleException("${archive.name} is missing processed metadata: ${value}")

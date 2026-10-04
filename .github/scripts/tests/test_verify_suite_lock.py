@@ -34,8 +34,8 @@ def valid_manifest() -> dict:
     return {
         "schemaVersion": 1,
         "suiteVersion": VERIFY.EXPECTED_SUITE_VERSION,
-        "minecraft": "26.3",
-        "java": 25,
+        "minecraft": "1.20.1",
+        "java": 17,
         "gradle": "9.6.0",
         "tooling": copy.deepcopy(VERIFY.EXPECTED_TOOLING),
         "loaders": copy.deepcopy(VERIFY.EXPECTED_LOADERS),
@@ -58,7 +58,7 @@ class SuiteLockVerifierTest(unittest.TestCase):
 
     def test_rejects_wrong_per_project_release_version(self) -> None:
         manifest = valid_manifest()
-        manifest["repositories"][2]["artifactVersion"] = "2.0.2+mc26.3"
+        manifest["repositories"][2]["artifactVersion"] = "2.0.2+mc1.20.1"
         self.assertTrue(VERIFY.validate_manifest(manifest))
 
     def test_rejects_duplicate_directory_and_release_order(self) -> None:
@@ -75,7 +75,7 @@ class SuiteLockVerifierTest(unittest.TestCase):
 
     def test_rejects_wrong_suite_version(self) -> None:
         manifest = valid_manifest()
-        manifest["suiteVersion"] = "2.0.0+mc26.3"
+        manifest["suiteVersion"] = "2.0.0+mc1.20.1"
         self.assertTrue(any("suiteVersion" in error for error in VERIFY.validate_manifest(manifest)))
 
     def test_rejects_wrong_tooling_pin(self) -> None:

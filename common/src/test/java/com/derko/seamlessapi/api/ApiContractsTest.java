@@ -65,8 +65,8 @@ class ApiContractsTest {
         var smoothed = TrailMath.smoothCatmullRom(points, 4, latest);
 
         assertEquals(9, smoothed.size());
-        assertEquals(points.getFirst(), smoothed.getFirst());
-        assertEquals(latest, smoothed.getLast());
+        assertEquals(points.get(0), smoothed.get(0));
+        assertEquals(latest, smoothed.get(smoothed.size() - 1));
         assertEquals(1.0F, TrailMath.widthAtProgress(1.0F, 1.0F));
         assertEquals(0.0F, TrailMath.alphaAtProgress(1.0F, 0.0F));
     }

@@ -2,59 +2,80 @@ name: build
 
 on:
   push:
-    branches: [main, '26.2', '26.3', 'port/**', 'support/**', 'feat/**', 'fix/**', 'release/**']
+    branches: ['1.20.1', 'feat/**', 'fix/**']
   pull_request:
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    working-directory: seamless-api
 
 jobs:
   wrapper-validation:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: seamless-api
       - uses: gradle/actions/wrapper-validation@v4
 
   loader-builds:
     strategy:
       fail-fast: false
       matrix:
-        loader: [fabric, forge, neoforge]
+        loader: [fabric, forge]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: seamless-api
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew :common:check :${{ matrix.loader }}:check :${{ matrix.loader }}:build
-      - name: Upload ${{ matrix.loader }} reports
+      - run: ./gradlew --no-daemon :common:check :${{ matrix.loader }}:check :${{ matrix.loader }}:build
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
           name: seamless-api-${{ matrix.loader }}-reports
           if-no-files-found: ignore
           path: |
-            **/build/reports/**
-            **/build/test-results/**
+            seamless-api/**/build/reports/**
+            seamless-api/**/build/test-results/**
+            seamless-api/**/logs/**
+            seamless-api/**/crash-reports/**
 
   verification:
+    needs: [wrapper-validation, loader-builds]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: seamless-api
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew clean check build
-      - name: Upload verification reports
+      - run: ./gradlew --no-daemon clean check build
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: seamless-api-verification-reports
+          name: seamless-api-verification
           if-no-files-found: ignore
           path: |
-            **/build/reports/**
-            **/build/test-results/**
+            seamless-api/**/build/reports/**
+            seamless-api/**/build/test-results/**
+            seamless-api/fabric/build/libs/*
+            seamless-api/forge/build/libs/*

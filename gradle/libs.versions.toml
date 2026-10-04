@@ -1,22 +1,20 @@
 [versions]
-minecraft = "26.3"
-java = "25"
+minecraft = "1.20.1"
+java = "17"
 architectury-plugin = "3.5.169"
 architectury-loom = "1.17.493"
 fabric-loader = "0.19.5"
-forge = "26.3-66.0.9"
-neoforge = "26.3.0.48-beta"
+forge = "1.20.1-47.4.26"
 junit = "5.12.2"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 forge = { module = "net.minecraftforge:forge", version.ref = "forge" }
-neoforge = { module = "net.neoforged:neoforge", version.ref = "neoforge" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 [plugins]
 architectury = { id = "architectury-plugin", version.ref = "architectury-plugin" }
-loom = { id = "dev.architectury.loom-no-remap", version.ref = "architectury-loom" }
+loom = { id = "dev.architectury.loom", version.ref = "architectury-loom" }

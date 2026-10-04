@@ -1,0 +1,10 @@
+fullscreen:false
+pauseOnLostFocus:false
+renderDistance:2
+simulationDistance:5
+maxFps:30
+guiScale:2
+enableVsync:false
+soundCategory_master:0.0
+onboardAccessibility:false
+tutorialStep:none

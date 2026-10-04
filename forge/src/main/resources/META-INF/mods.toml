@@ -20,7 +20,7 @@ ordering="NONE"
 side="BOTH"
 
 [features.seamlessapi]
-javaVersion="[25,)"
+javaVersion="[17,)"
 
 [[dependencies.seamlessapi]]
 modId="minecraft"
