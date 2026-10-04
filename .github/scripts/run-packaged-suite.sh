@@ -164,10 +164,13 @@ prepare_persistence_fixtures() {
   # A full-durability iron pickaxe has deterministic, non-empty salvage at zero configured loss,
   # so six incompatible full output stacks always force a pending operation instead of allowing
   # a fractional recipe roll to produce no output.
-  rcon_command "item replace block ${WORKBENCH_POS} container.0 with minecraft:iron_pickaxe 1" >/dev/null
   for slot in 2 3 4 5 6 7; do
     rcon_command "item replace block ${WORKBENCH_POS} container.${slot} with minecraft:cobblestone 64" >/dev/null
   done
+  # Populate outputs before starting the machine. Separate RCON calls can take
+  # longer than processTicks, otherwise the input is correctly processed while
+  # outputs are still empty and the fixture accidentally overwrites its salvage.
+  rcon_command "item replace block ${WORKBENCH_POS} container.0 with minecraft:iron_pickaxe 1" >/dev/null
 
   local pending_ready=false
   for _ in $(seq 1 80); do

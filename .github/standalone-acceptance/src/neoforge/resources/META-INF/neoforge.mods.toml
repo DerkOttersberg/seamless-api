@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[11,)"
+license="MIT"
+[[mods]]
+modId="qastandalone"
+version="1.0.0"
+displayName="Standalone Acceptance QA"
+[[mixins]]
+config="qa-standalone.mixins.json"

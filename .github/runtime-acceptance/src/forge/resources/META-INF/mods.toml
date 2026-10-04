@@ -1,0 +1,7 @@
+modLoader="javafml"
+loaderVersion="[65,)"
+license="MIT"
+[[mods]]
+modId="qaruntime"
+version="1.0.0"
+displayName="Runtime Acceptance QA"

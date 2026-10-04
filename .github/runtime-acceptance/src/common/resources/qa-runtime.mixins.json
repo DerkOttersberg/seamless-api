@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "qa.runtime.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "priority": 500,
+  "client": ["ClientTickMixin", "ChatMixin", "ThrowStateMixin", "PlayerModelProbeMixin", "MinecraftProbeAccessor"],
+  "injectors": {"defaultRequire": 1}
+}

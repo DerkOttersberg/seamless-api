@@ -63,6 +63,12 @@ contains the manifest itself.
 See [PORTING.md](PORTING.md) for the loader boundary and
 [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
+Packaged real-client QA is documented in
+[runtime-acceptance](.github/runtime-acceptance/README.md) and
+[standalone-acceptance](.github/standalone-acceptance/README.md).
+The former checks two actual clients, server packets, rendered throwing models,
+and item conservation; the latter checks independent product initialization.
+
 ## License
 
 MIT

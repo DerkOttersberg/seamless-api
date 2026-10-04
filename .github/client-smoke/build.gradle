@@ -2,6 +2,16 @@ plugins {
     id 'dev.architectury.loom-no-remap' version '1.17.491'
 }
 
+// Forge's userdev run template does not forward Loom run properties. Apply
+// smoke-test flags directly to JavaExec rather than silently running a different
+// scenario from the requested one.
+tasks.withType(JavaExec).configureEach {
+    if (providers.gradleProperty('forgeGameplayProbe').isPresent()) systemProperty 'qa.forge.probe', 'true'
+    if (providers.gradleProperty('clientSkipWorld').isPresent()) systemProperty 'qa.ui.menuOnly', 'true'
+    if (providers.gradleProperty('qaServer').isPresent()) systemProperty 'qa.server', providers.gradleProperty('qaServer').get()
+    if (providers.gradleProperty('standaloneMod').isPresent()) systemProperty 'qa.standalone.mod', providers.gradleProperty('standaloneMod').get()
+}
+
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
@@ -46,7 +56,16 @@ loom {
         client {
             client()
             runDir selectedRunDirectory.get().absolutePath
-            if (!providers.gradleProperty('clientSkipWorld').isPresent()) {
+            if (providers.gradleProperty('forgeGameplayProbe').isPresent()) property 'qa.forge.probe', 'true'
+            if (providers.gradleProperty('qaUsername').isPresent()) programArgs '--username', providers.gradleProperty('qaUsername').get()
+            if (providers.gradleProperty('graphicsBackend').isPresent()) {
+                def backend = providers.gradleProperty('graphicsBackend').get()
+                if (!(backend in ['opengl', 'vulkan'])) throw new GradleException('Invalid graphicsBackend: ' + backend)
+                programArgs '--graphicsBackend', backend
+            }
+            if (providers.gradleProperty('qaServer').isPresent()) {
+                programArgs '--quickPlayMultiplayer', providers.gradleProperty('qaServer').get()
+            } else if (!providers.gradleProperty('clientSkipWorld').isPresent()) {
                 programArgs '--quickPlaySingleplayer', 'suite-world'
             } else {
                 property 'qa.ui.menuOnly', 'true'
