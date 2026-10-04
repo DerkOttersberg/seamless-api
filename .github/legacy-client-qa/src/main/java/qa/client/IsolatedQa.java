@@ -17,6 +17,7 @@ public final class IsolatedQa {
     public static void tick(Minecraft client) {
         if (capturePending) return;
         try {
+            if (Boolean.getBoolean("qa.multiplayer")) { MultiplayerQa.tick(client); return; }
             if (Boolean.getBoolean("qa.menuOnly")) {
                 if (client.screen instanceof TitleScreen && ++ticks > 100)
                     capture(client, "qa-main-menu.png", () -> passed(client));

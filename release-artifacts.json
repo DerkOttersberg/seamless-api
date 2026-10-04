@@ -1,6 +1,6 @@
 [
   {
-    "sha256": "f2d2da9f6ba5fcd0aa552b7dbe56709c4b5192f6fc6c0186184fb25bb4c7513b",
+    "sha256": "46990b8241abe992da9b2fcca7f873d72f846bef554b4948979fc384423bd778",
     "minecraft": "1.20.1",
     "loader": "fabric",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.20.1-fabric.jar",
@@ -14,7 +14,7 @@
     "published": false
   },
   {
-    "sha256": "a172313f20c124182aa93b8123ef4c97e87d2c19c20c0c04ee8101dc5b31ce46",
+    "sha256": "a523840ef43d1f2a0f6e446efa0e4a9816c4ca43b6cfd70ad0cc171b5ee85cd1",
     "minecraft": "1.20.1",
     "loader": "fabric",
     "file": "seamless-crafting-2.1.1+mc1.20.1-fabric.jar",
@@ -35,7 +35,7 @@
     "published": false
   },
   {
-    "sha256": "0cb9bef76c2d091436fe278fae2b99408e7e5a8656cf3dc26b24b75faa012cc8",
+    "sha256": "b10416878d348d942c48df250032e51087e02492b19882c2b9591ceff7230834",
     "minecraft": "1.20.1",
     "loader": "forge",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.20.1-forge.jar",

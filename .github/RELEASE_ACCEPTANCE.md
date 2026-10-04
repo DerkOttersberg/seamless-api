@@ -1,53 +1,59 @@
-# Minecraft 26.3 release acceptance
+# Minecraft 1.20.1 release acceptance
 
-The maintained suite is SeamlessLib, Pretty Meteors, Deconstructing Workbench,
-Seamless Crafting, and Throw Weapons. Block Animations and the unfinished comfort
-project are excluded. Java 25 is required; all three loaders have separate jars.
+Suite: SeamlessLib, Meteor Showers, Salvage Workbench, Nearby Chest Crafting and
+Throw Weapons. Fabric and Forge only (the owner's legacy-line exception); no
+NeoForge, Block Animations, Comfort or Dogs. Minecraft/runtime/bytecode: Java 17.
+Java 25 hosts Gradle 9.6.0. Exact dependency/source pins: `suite-lock.json`.
 
-## Completed local gates (October 4, 2026)
+## Completed local gates — October 5, 2026
 
-- Five `clean check build` runs and all 15 production loader jars.
-- 91 common unit tests, zero failures/errors.
-- 82 mod-specific native loader GameTest scenarios plus 12 vanilla built-ins.
-- All six paired-client loader/backend profiles: real dedicated server and two
-  clients, authoritative crafting/returns, partial/full throws, vanilla drops,
-  rendered arm/sleeve poses, reconnect, respawn, and dimension changes.
-- All 15 standalone integrated-world initialization/dependency profiles.
-- All three packaged dedicated-server persistence/restart profiles, using
-  copied legacy schema/config fixtures and retained migration backups.
-- All three settings profiles at GUI scales 2/3/4, including icons, empty
-  book-slot tooltips, draft/validation/resize checks; actual JEI exclusions on
-  Fabric and NeoForge.
-- Active meteor rendering in all three additional Vulkan combined profiles.
-- Final production SHA-256 matched the jars used in every designated profile.
+- Five final `clean check build` runs; Meteors was rebuilt after the operator-only
+  command fix. Ten correct remapped production jars with metadata, icons, assets,
+  refmaps, namespaces, Java classfiles and dependency isolation checked.
+- 90 unit tests and 57 required loader-native GameTests, including non-operator
+  meteor command denial, crafting accounting, workbench processing and throwing.
+- 23 manifest/RCON harness unit tests.
+- Independent real development clients on both loaders, with only the selected
+  mod and its dependencies; combined development clients with optional JEI.
+- Two final native packaged server persistence/restart scenarios using untouched
+  production jars, copied legacy-schema/config fixtures and retained backups.
+- Final native packaged multiplayer on both loaders without JEI: one dedicated
+  server and two actual clients; late join, reconnect/disconnect item conservation,
+  actual recipe autofill/return, workbench salvage, partial/full throws with NBT,
+  synchronized remote poses, dimensions, respawn, meteor stop and resource reload.
+- Actual settings GUI scales 2/3/4, invalid-number rejection and retained drafts
+  on resize/page changes. Workbench empty-book tooltip and visible meteor trails.
 
-The source ports are recorded in version branches and `suite-lock.json`;
-`release-artifacts.json` identifies the tested/CurseForge-submitted binaries.
-Detailed logs, screenshots, and PASS markers are retained in the owner's workspace
-under `qa-artifacts/mc26.3`. Exploratory failed runs are not accepted evidence.
-This records local tests, not a claim that remote GitHub Actions has passed.
+The optional native multiplayer JEI/MezzConfig lane and stricter framed remote
+animation checks also passed on both loaders. The corrected Crafting Fabric jar
+was rebuilt and retested without/with JEI and across native server restart.
+Actual-render per-actor probes prevent resting shared-model false positives.
+Local evidence is retained at
+`qa-artifacts/mc1.20.1`; detailed designated runs are in `QA-MC1.20.1.md`.
 
-## Limits
+## Isolation and limitations
 
-Minecraft metadata intentionally permits only 26.3. Existing 26.2 jars are
-separate; 26.1 is not ported. Forge 66.0.9 and NeoForge 26.3.0.48-beta are upstream
-beta loaders, and their CurseForge files are Beta. JEI 31.9.0.57 is optional on
-Fabric/NeoForge; there is no corresponding pinned Forge runtime. Mod Menu 21 is
-optional on Fabric. Crafting was additionally tested without SeamlessLib, although
-the published suite dependency relation requests SeamlessLib.
+Private WSL Xvfb, llvmpipe software OpenGL, bounded heaps/CPU/time and low priority;
+no Windows game window, foreground operation or desktop mouse/keyboard input.
+The exclusive lock covers each paired process group. No vanilla Vulkan backend
+exists in 1.20.1. No downloaded Minecraft libraries, worlds or QA helpers are
+release artifacts. Never downgrade 26.x saves or relabel old releases.
 
-NeoForge Vulkan profiles set `earlyWindowControl = false` in their new
-`config/fml.toml`; do not advertise default-config Vulkan support. Offline QA
-clients log unavailable Realms/user services and this Windows machine logs
-missing Perflib counters; neither was hidden by changing OS/security settings.
+Copied legacy fixtures are not every player's historical world. All modpacks,
+resource packs, physical drivers, skins and third-party inventories are not
+guaranteed. Backup originals and test copies. Forge JEI 15.62.0.219 / MezzConfig
+0.6.8 currently needs matching MezzConfig on the server as well as clients because
+of an upstream optional-channel predicate; default Seamless installs need neither.
+Do not weaken Forge validation to hide that incompatibility.
 
-Copied legacy fixtures do not prove every actual historical world upgrade.
-Tests do not guarantee every mod pack, skin, resource pack, driver, or storage
-provider. Preserve backups. Do not distribute QA helpers, Minecraft jars or worlds.
+GitHub Actions has not passed: freshly checked runs 37237040153 / 37237040159
+did not start because the account is locked for billing. Local acceptance is
+separate; no fabricated check or billing/protection change was made.
 
-## Publication
+## Upload state
 
-All 15 runtime files were submitted to the existing CurseForge pages with
-26.3/Java 25/one-loader metadata and automatic publication after approval.
-Moderation status is external and may change. Existing licenses and registry IDs
-were preserved; old 26.2 files were not relabeled or overwritten.
+`release-artifacts.json` hashes the exact tested runtime inputs. Upload receipts
+in workspace `qa-artifacts/mc1.20.1/curseforge` record actual submission/moderation
+separately. Submit only these files to the existing five projects, correct
+Minecraft/Java/one-loader tags, required SeamlessLib relations on gameplay mods,
+and manual publication after approval. Submission is not approval/publication.

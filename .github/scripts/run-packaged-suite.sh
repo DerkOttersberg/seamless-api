@@ -206,6 +206,25 @@ verify_reloaded_persistence() {
     pending \
     "if data block ${WORKBENCH_POS} PendingOperation" \
     "Workbench PendingOperation disappeared across reload"
+  # Block chunks can be available before vanilla's asynchronous entity storage
+  # has restored their entities. Do not confuse the server's Done marker with
+  # completion of forced-chunk entity IO. Never recreate the saved projectile.
+  local entity_loaded=false
+  for _ in $(seq 1 40); do
+    rcon_command "scoreboard players set entity_loaded suite_qa 0" >/dev/null
+    rcon_command 'execute if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1] run scoreboard players set entity_loaded suite_qa 1' >/dev/null
+    local load_response
+    load_response="$(rcon_command 'scoreboard players get entity_loaded suite_qa')"
+    if [[ "$load_response" =~ has[[:space:]]+1[[:space:]] ]]; then
+      entity_loaded=true
+      break
+    fi
+    sleep 0.5
+  done
+  if [[ "$entity_loaded" != true ]]; then
+    echo "Saved Sword projectile did not load within the bounded entity-IO wait" >&2
+    return 1
+  fi
   assert_rcon_condition \
     sword \
     'if entity @e[type=swordthrow:thrown_sword,tag=suite_embedded,limit=1,nbt={Embedded:1b,ThrownStackCount:3,Item:{id:"minecraft:iron_sword",Count:1b,tag:{suite_marker:"embedded-1.20.1",Damage:7}}}]' \

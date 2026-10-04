@@ -14,8 +14,10 @@ for command_name in Xvfb xvfb-run timeout nice taskset flock; do
 done
 
 exec 9>"${ISOLATED_CLIENT_LOCK_FILE:-/tmp/seamless-isolated-minecraft.lock}"
-flock --wait 50 9 || {
-  printf 'Another isolated Minecraft client remained busy for 50 seconds.\n' >&2
+lock_wait_seconds="${ISOLATED_CLIENT_LOCK_WAIT_SECONDS:-50}"
+[[ "$lock_wait_seconds" =~ ^[0-9]+$ ]] && ((lock_wait_seconds >= 1 && lock_wait_seconds <= 900)) || exit 2
+flock --wait "$lock_wait_seconds" 9 || {
+  printf 'Another isolated Minecraft client remained busy for %s seconds.\n' "$lock_wait_seconds" >&2
   exit 2
 }
 

@@ -29,7 +29,7 @@
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
       "artifactVersion": "2.0.2+mc1.20.1",
-      "commit": "096ad31608cea140ef66be50f10989edf1891946",
+      "commit": "ea658000eb8c97d30011882a25efe442496fc60e",
       "releaseOrder": 2
     },
     {
@@ -47,7 +47,7 @@
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
       "artifactVersion": "2.1.1+mc1.20.1",
-      "commit": "9363f2f71caf92e9764351eed74a7b7bf71f1be8",
+      "commit": "98cef3457086aa795cfed9e624cf425fc6363ade",
       "releaseOrder": 4
     },
     {

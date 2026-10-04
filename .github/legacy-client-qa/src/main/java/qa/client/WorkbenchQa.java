@@ -44,16 +44,12 @@ final class WorkbenchQa {
                 throw new IllegalStateException("Workbench menu did not open through the real loader packet");
             if (client.player.containerMenu.getSlot(1).hasItem())
                 throw new IllegalStateException("Empty-book-slot fixture is not empty");
-            var left = AbstractContainerScreen.class.getDeclaredField("leftPos");
-            var top = AbstractContainerScreen.class.getDeclaredField("topPos");
-            left.setAccessible(true); top.setAccessible(true);
+            var position = (qa.client.mixin.ContainerQaAccess) client.screen;
             // Internal app coordinates on private Xvfb, never OS input.
-            var mx = client.mouseHandler.getClass().getDeclaredField("xpos");
-            var my = client.mouseHandler.getClass().getDeclaredField("ypos");
-            mx.setAccessible(true); my.setAccessible(true);
+            var mouse = (qa.client.mixin.MouseQaAccess) client.mouseHandler;
             double scale = client.getWindow().getGuiScale();
-            mx.setDouble(client.mouseHandler, (left.getInt(client.screen) + 38) * scale);
-            my.setDouble(client.mouseHandler, (top.getInt(client.screen) + 50) * scale);
+            mouse.qaX((position.qaLeft() + 38) * scale);
+            mouse.qaY((position.qaTop() + 50) * scale);
             ticks = 0; phase = 3;
         } else if (phase == 3 && ++ticks >= 15) {
             IsolatedQa.capture(client, "qa-workbench-book-hint.png", () -> server.execute(() -> {
