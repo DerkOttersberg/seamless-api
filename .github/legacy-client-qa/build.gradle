@@ -11,11 +11,11 @@ sourceSets.main {
     resources.srcDir "src/${selectedLoader}/resources"
 }
 dependencies {
-    minecraft 'com.mojang:minecraft:1.20.1'
+    minecraft 'com.mojang:minecraft:1.21.1'
     mappings loom.officialMojangMappings()
     if (selectedLoader == 'fabric') modImplementation 'net.fabricmc:fabric-loader:0.19.5'
     else {
-        forge 'net.minecraftforge:forge:1.20.1-47.4.26'
+        forge 'net.minecraftforge:forge:1.21.1-52.1.16'
         // Forge's Loom development client uses named members, while release
         // jars use SRG. Remap release inputs through the supported mod classpath.
         modRuntimeOnly fileTree(providers.gradleProperty('clientRunDir').get() + '/artifact-inputs') { include '*.jar' }

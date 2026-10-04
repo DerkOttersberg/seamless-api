@@ -1,16 +1,18 @@
 [versions]
-minecraft = "1.20.1"
-java = "17"
+minecraft = "1.21.1"
+java = "21"
 architectury-plugin = "3.5.169"
 architectury-loom = "1.17.493"
 fabric-loader = "0.19.5"
-forge = "1.20.1-47.4.26"
+forge = "1.21.1-52.1.16"
+neoforge = "21.1.255"
 junit = "5.12.2"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 forge = { module = "net.minecraftforge:forge", version.ref = "forge" }
+neoforge = { module = "net.neoforged:neoforge", version.ref = "neoforge" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }

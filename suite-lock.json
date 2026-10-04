@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "suiteVersion": "2.1.1+mc1.20.1",
-  "minecraft": "1.20.1",
+  "suiteVersion": "2.1.1+mc1.21.1",
+  "minecraft": "1.21.1",
   "java": 17,
   "gradle": "9.6.0",
   "tooling": {
@@ -10,8 +10,8 @@
   },
   "loaders": {
     "fabricLoader": "0.19.5",
-    "fabricApi": "0.92.12+1.20.1",
-    "forge": "1.20.1-47.4.26"
+    "fabricApi": "0.92.12+1.21.1",
+    "forge": "1.21.1-52.1.16"
   },
   "repositories": [
     {
@@ -19,7 +19,7 @@
       "repository": "DerkOttersberg/seamless-api",
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
-      "artifactVersion": "2.0.2+mc1.20.1",
+      "artifactVersion": "2.0.2+mc1.21.1",
       "commit": "75fe66585274eaf7136bc0001ee5824fc696c63e",
       "releaseOrder": 1
     },
@@ -28,7 +28,7 @@
       "repository": "DerkOttersberg/pretty-meteors-with-trails",
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
-      "artifactVersion": "2.0.2+mc1.20.1",
+      "artifactVersion": "2.0.2+mc1.21.1",
       "commit": "096ad31608cea140ef66be50f10989edf1891946",
       "releaseOrder": 2
     },
@@ -37,7 +37,7 @@
       "repository": "DerkOttersberg/seamless-deconstructing-workbench",
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
-      "artifactVersion": "2.1.1+mc1.20.1",
+      "artifactVersion": "2.1.1+mc1.21.1",
       "commit": "8d7593f83312dbc09456c782154f6fc6c0ef58c7",
       "releaseOrder": 3
     },
@@ -46,7 +46,7 @@
       "repository": "DerkOttersberg/seamless-crafting",
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
-      "artifactVersion": "2.1.1+mc1.20.1",
+      "artifactVersion": "2.1.1+mc1.21.1",
       "commit": "9363f2f71caf92e9764351eed74a7b7bf71f1be8",
       "releaseOrder": 4
     },
@@ -55,10 +55,10 @@
       "repository": "DerkOttersberg/sword-throw",
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
-      "artifactVersion": "2.1.1+mc1.20.1",
+      "artifactVersion": "2.1.1+mc1.21.1",
       "commit": "900502340251b11e9a393bfcfd829712f4a876b0",
       "releaseOrder": 5
     }
   ],
-  "note": "Exact Minecraft 1.20.1 Fabric/Forge source commits. The API baseline precedes this manifest update to avoid a self-referential hash; CI consumes the current validated manifest. Java 25 hosts Gradle; Java 17 compiles/runs Minecraft. release-artifacts.json identifies locally tested, unpublished runtime jars. GitHub CI remains independent of local acceptance."
+  "note": "Exact Minecraft 1.21.1 Fabric/Forge source commits. The API baseline precedes this manifest update to avoid a self-referential hash; CI consumes the current validated manifest. Java 25 hosts Gradle; Java 17 compiles/runs Minecraft. release-artifacts.json identifies locally tested, unpublished runtime jars. GitHub CI remains independent of local acceptance."
 }

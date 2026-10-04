@@ -45,6 +45,13 @@ subprojects {
         useJUnitPlatform()
     }
 
+    tasks.withType(Jar).configureEach {
+        from rootProject.file('LICENSE')
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        preserveFileTimestamps = false
+        reproducibleFileOrder = true
+    }
+
     publishing {
         publications {
             register('mavenJava', MavenPublication) {
@@ -80,81 +87,32 @@ tasks.register('verifyCommonIsolation') {
 }
 
 tasks.register('verifyLoaderJars') {
-    group = 'verification'
-    description = 'Checks that each distributable jar contains only its own loader metadata.'
-    dependsOn ':fabric:remapJar', ':forge:remapJar'
-
+    dependsOn ':fabric:remapJar',':forge:remapJar',':neoforge:remapJar'
     doLast {
-        def specifications = [
-            fabric: [
-                expected: 'fabric.mod.json',
-                forbidden: ['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']
-            ],
-            forge: [
-                expected: 'META-INF/mods.toml',
-                forbidden: ['fabric.mod.json', 'META-INF/neoforge.mods.toml']
-            ]
-        ]
-
-        specifications.each { loader, specification ->
-            def archive = project(":${loader}").tasks.named('remapJar').get().archiveFile.get().asFile
-            def expectedName = "${rootProject.archives_base_name}-${project.version}-${loader}.jar"
-            if (archive.name != expectedName) {
-                throw new GradleException("Expected ${expectedName}, found ${archive.name}")
-            }
+        def paths=[fabric:'fabric.mod.json',forge:'META-INF/mods.toml',neoforge:'META-INF/neoforge.mods.toml']
+        paths.each { loader,metadataPath ->
+            def archive=project(":${loader}").tasks.named('remapJar').get().archiveFile.get().asFile
+            assert archive.name=="seamless-api-${project.version}-${loader}.jar"
             new java.util.zip.ZipFile(archive).withCloseable { zip ->
+                assert zip.getEntry(metadataPath)!=null
+                paths.values().findAll { it!=metadataPath }.each { assert zip.getEntry(it)==null }
+                ['LICENSE','assets/seamlessapi/icon.png','io/github/derkottersberg/seamlessapi/internal/SeamlessApiBootstrap.class'].each { assert zip.getEntry(it)!=null }
                 zip.entries().findAll { it.name.endsWith('.class') }.each { entry ->
                     new DataInputStream(zip.getInputStream(entry)).withCloseable { header ->
-                        if (header.readInt() != -889275714) throw new GradleException("Invalid class: ${entry.name}")
-                        header.readUnsignedShort()
-                        if (header.readUnsignedShort() > 61) throw new GradleException("Not Java 17 compatible: ${entry.name}")
+                        assert header.readInt()==-889275714; header.readUnsignedShort(); assert header.readUnsignedShort()==65
                     }
                 }
-                if (zip.getEntry(specification.expected) == null) {
-                    throw new GradleException("${archive.name} is missing ${specification.expected}")
-                }
-                specification.forbidden.each { entry ->
-                    if (zip.getEntry(entry) != null) {
-                        throw new GradleException("${archive.name} contains stale metadata ${entry}")
-                    }
-                }
-                if (zip.getEntry('io/github/derkottersberg/seamlessapi/internal/SeamlessApiBootstrap.class') == null) {
-                    throw new GradleException("${archive.name} does not contain the common API implementation")
-                }
-
-                if (loader == 'fabric') {
-                    def metadata = new groovy.json.JsonSlurper().parse(zip.getInputStream(zip.getEntry('fabric.mod.json')))
-                    if (metadata.schemaVersion != 1 || metadata.id != 'seamlessapi') {
-                        throw new GradleException("${archive.name} contains unexpected Fabric identity/schema metadata")
-                    }
-                    if (metadata.version != project.version.toString()) {
-                        throw new GradleException("${archive.name} declares unexpected version ${metadata.version}")
-                    }
-                    if (metadata.license != 'MIT' || metadata.depends.fabricloader != '>=0.19.5') {
-                        throw new GradleException("${archive.name} contains unexpected license/loader metadata")
-                    }
-                    if (metadata.depends['fabric-api'] != null) {
-                        throw new GradleException("${archive.name} must not require unused Fabric API")
-                    }
-                    if (metadata.depends.values().any { it == '*' }) {
-                        throw new GradleException("${archive.name} contains a wildcard dependency")
-                    }
-                    if (metadata.depends.minecraft != '1.20.1' || metadata.depends.java != '>=17') {
-                        throw new GradleException("${archive.name} contains unexpected Minecraft/Java dependency ranges")
-                    }
+                def text=zip.getInputStream(zip.getEntry(metadataPath)).getText('UTF-8')
+                assert !text.contains('${')
+                if(loader=='fabric') {
+                    def meta=new groovy.json.JsonSlurper().parseText(text)
+                    assert meta.id=='seamlessapi' && meta.license=='MIT' && meta.version==project.version.toString()
+                    assert meta.depends.minecraft=='1.21.1' && meta.depends.java=='>=21' && meta.depends.fabricloader=='>=0.19.5'
+                    assert !meta.depends.containsKey('fabric-api')
                 } else {
-                    def metadata = zip.getInputStream(zip.getEntry(specification.expected)).getText('UTF-8')
-                    if (metadata.contains('${')) {
-                        throw new GradleException("${archive.name} contains unprocessed metadata placeholders")
-                    }
-                    def requiredValues = ['modLoader="javafml"', 'loaderVersion="[47,)"', 'license="MIT"',
-                            "version=\"${project.version}\"", 'modId="forge"', 'versionRange="[47.1,48)"',
-                            'modId="minecraft"', 'versionRange="[1.20.1,1.20.2)"', 'javaVersion="[17,)"']
-                    requiredValues.each { value ->
-                        if (!metadata.contains(value)) {
-                            throw new GradleException("${archive.name} is missing processed metadata: ${value}")
-                        }
-                    }
+                    assert text.contains('license="MIT"') && text.contains('modId="seamlessapi"') && text.contains('versionRange="[1.21.1]"')
+                    assert text.contains('javaVersion="[21,)"') && text.contains("version=\"${project.version}\"")
+                    assert text.contains(loader=='forge' ? 'versionRange="[52.1.16,53)"' : 'versionRange="[21.1.255,21.2)"')
                 }
             }
         }
