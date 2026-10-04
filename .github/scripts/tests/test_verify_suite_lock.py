@@ -44,6 +44,10 @@ def valid_manifest() -> dict:
 
 
 class SuiteLockVerifierTest(unittest.TestCase):
+    def test_repository_manifest_matches_this_game_line(self) -> None:
+        manifest = VERIFY.load_manifest(SCRIPT.parents[2] / "suite-lock.json")
+        self.assertEqual([], VERIFY.validate_manifest(manifest))
+
     def test_accepts_complete_release_lock(self) -> None:
         self.assertEqual([], VERIFY.validate_manifest(valid_manifest()))
 
