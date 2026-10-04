@@ -34,6 +34,16 @@ final class WeaponQa {
                 var player = server.getPlayerList().getPlayer(client.player.getUUID());
                 player.setGameMode(GameType.SURVIVAL);
                 player.getInventory().clearContent();
+                // The copied survival world can contain trees and animals.
+                // Give the flight assertion an unobstructed, test-only corridor
+                // rather than mistaking a legitimate impact/drop for no throw.
+                var level = player.serverLevel();
+                for (var pos : net.minecraft.core.BlockPos.betweenClosed(
+                        player.blockPosition().offset(-8, 0, -8), player.blockPosition().offset(8, 7, 16)))
+                    level.setBlockAndUpdate(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+                    player.getBoundingBox().inflate(20), entity -> !(entity instanceof net.minecraft.world.entity.player.Player))
+                    .forEach(net.minecraft.world.entity.Entity::discard);
                 ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
                 sword.setHoverName(Component.literal("Isolated charge QA"));
                 sword.setDamageValue(7);
@@ -83,7 +93,10 @@ final class WeaponQa {
                         player.getBoundingBox().inflate(64), entity -> entity.getClass().getSimpleName().equals("ThrownSwordEntity")
                             && entity.getOwner() == player);
                     if (projectiles.size() != 1 || !player.getMainHandItem().isEmpty()) {
-                        throw new IllegalStateException("Partial release did not conserve one weapon: " + projectiles.size());
+                        throw new IllegalStateException("Expected one in-flight weapon: " + projectiles.size()
+                            + "; hand=" + player.getMainHandItem() + "; nearby drops="
+                            + player.serverLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                                player.getBoundingBox().inflate(64)).stream().map(entity -> entity.getItem().toString()).toList());
                     }
                     ItemStack item = projectiles.get(0).getItem();
                     if (!item.is(Items.DIAMOND_SWORD) || item.getDamageValue() != 7

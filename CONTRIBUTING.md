@@ -1,8 +1,11 @@
 # Contributing
 
-Use Java 25 and start work from `main`. Branches use `feat/<name>`,
-`fix/<name>`, or `port/mc-<version>`; maintained older lines use
-`support/mc-<version>`.
+For this branch, base changes on `1.20.1`, not `main` or a 26.x branch.
+Java 25 hosts Gradle; Java 17 compiles and runs Minecraft. Supported loaders
+are Fabric and Forge only. Keep a matching `1.20.1` API sibling checkout.
+
+
+Start work from `1.20.1`; short-lived branches use `feat/<name>` or `fix/<name>`.
 
 Before opening a pull request:
 

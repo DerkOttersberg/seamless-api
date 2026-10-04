@@ -14,8 +14,8 @@ for command_name in Xvfb xvfb-run timeout nice taskset flock; do
 done
 
 exec 9>"${ISOLATED_CLIENT_LOCK_FILE:-/tmp/seamless-isolated-minecraft.lock}"
-flock --nonblock 9 || {
-  printf 'Another isolated Minecraft client is already running.\n' >&2
+flock --wait 50 9 || {
+  printf 'Another isolated Minecraft client remained busy for 50 seconds.\n' >&2
   exit 2
 }
 
