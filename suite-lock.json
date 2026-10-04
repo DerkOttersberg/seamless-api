@@ -21,7 +21,7 @@
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
       "artifactVersion": "2.0.1+mc26.2",
-      "commit": "5d95737f456493e8b1dba7f2ad0636cb7f5ea778",
+      "commit": "c71b236709a8603c5739d8ab1892a98b27709125",
       "releaseOrder": 1
     },
     {
@@ -48,7 +48,7 @@
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
       "artifactVersion": "2.1.0+mc26.2",
-      "commit": "3b2b6f8c8bed9232c0b8231f78895b707415e0ad",
+      "commit": "ec850ea6a0c942a55beb4acf68d1d6a748b91575",
       "releaseOrder": 4
     },
     {
@@ -57,7 +57,7 @@
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
       "artifactVersion": "2.1.0+mc26.2",
-      "commit": "28ee8f6cc9ebdc8eaeb9084f453e576cc1ece7e4",
+      "commit": "3c9e80135f137327df338f97416dd7cbfc8055c3",
       "releaseOrder": 5
     }
   ],
