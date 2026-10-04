@@ -21,7 +21,7 @@
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
       "artifactVersion": "2.0.1+mc26.2",
-      "commit": "f05f7b04a85c47626555d21816f507dea0889b99",
+      "commit": "5d95737f456493e8b1dba7f2ad0636cb7f5ea778",
       "releaseOrder": 1
     },
     {
@@ -30,7 +30,7 @@
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
       "artifactVersion": "2.0.1+mc26.2",
-      "commit": "996ec7329cba48f7b998b4bb90702c297b0eed07",
+      "commit": "5302c9d2c8072a6d054f7b1dcf25593c6138feaf",
       "releaseOrder": 2
     },
     {
@@ -39,7 +39,7 @@
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
       "artifactVersion": "2.1.0+mc26.2",
-      "commit": "1655b12edc10eb2f2459aeab05f7ad29c136c0ed",
+      "commit": "78a79ad925ebbafbe00a48aa99c04eaf029ce32d",
       "releaseOrder": 3
     },
     {
@@ -48,7 +48,7 @@
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
       "artifactVersion": "2.1.0+mc26.2",
-      "commit": "4bc7eddd88adad175b8ec921eaad88c9c172cf57",
+      "commit": "3b2b6f8c8bed9232c0b8231f78895b707415e0ad",
       "releaseOrder": 4
     },
     {
@@ -57,7 +57,7 @@
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
       "artifactVersion": "2.1.0+mc26.2",
-      "commit": "2cb2235d9674bee71e11df32a60ed153ffc9a6d6",
+      "commit": "28ee8f6cc9ebdc8eaeb9084f453e576cc1ece7e4",
       "releaseOrder": 5
     }
   ],
