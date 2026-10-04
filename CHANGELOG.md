@@ -2,6 +2,8 @@
 
 ## 2.0.1+mc26.2
 
+- Added a dedicated library icon for Fabric Mod Menu and native Forge/NeoForge Mods screens.
+- Included editable icon source and a reproducible pixel-art renderer.
 - Removed the unused Fabric API runtime dependency from the Fabric artifact.
 - Added stricter packaged-metadata verification for the 26.2 release line.
 

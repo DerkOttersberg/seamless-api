@@ -5,6 +5,7 @@ issueTrackerURL="https://github.com/DerkOttersberg/seamless-api/issues"
 modId="seamlessapi"
 version="${mod_version}"
 displayName="Seamless API"
+iconFile="assets/seamlessapi/icon.png"
 displayURL="https://github.com/DerkOttersberg/seamless-api"
 authors="Derk Ottersberg"
 description='''Shared integration APIs for the Seamless mod family.'''
