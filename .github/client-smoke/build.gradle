@@ -46,7 +46,11 @@ loom {
         client {
             client()
             runDir selectedRunDirectory.get().absolutePath
-            programArgs '--quickPlaySingleplayer', 'suite-world'
+            if (!providers.gradleProperty('clientSkipWorld').isPresent()) {
+                programArgs '--quickPlaySingleplayer', 'suite-world'
+            } else {
+                property 'qa.ui.menuOnly', 'true'
+            }
             if (selectedLoader == 'forge') {
                 def identityMappings = file('official-named-empty.tiny').absolutePath
                 property 'architectury.naming.mappingsPath', identityMappings
