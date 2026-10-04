@@ -1,5 +1,8 @@
 # Seamless API
 
+This is the `26.2` source branch. For Minecraft 26.3, use the `26.3` branch;
+each contains Fabric, Forge, and NeoForge. See [REPOSITORY_WORKFLOW.md](REPOSITORY_WORKFLOW.md).
+
 Seamless API is the shared integration library for the Seamless mod family. It
 provides stable contracts for satiation and food buffs, deconstruction, meteor
 showers, and reusable visual calculations without owning gameplay state.
