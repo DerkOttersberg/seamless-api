@@ -20,7 +20,7 @@
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
       "artifactVersion": "2.0.2+mc1.20.1",
-      "commit": "aa8e793995b0deaa85f5283e3056eb702bc8611a",
+      "commit": "75fe66585274eaf7136bc0001ee5824fc696c63e",
       "releaseOrder": 1
     },
     {
@@ -29,7 +29,7 @@
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
       "artifactVersion": "2.0.2+mc1.20.1",
-      "commit": "a083241a8b2134078431d329560bbefc72cf4a69",
+      "commit": "096ad31608cea140ef66be50f10989edf1891946",
       "releaseOrder": 2
     },
     {
@@ -38,7 +38,7 @@
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
       "artifactVersion": "2.1.1+mc1.20.1",
-      "commit": "eb02c6117078f80058d5b702f8c21cd651bf7383",
+      "commit": "8d7593f83312dbc09456c782154f6fc6c0ef58c7",
       "releaseOrder": 3
     },
     {
@@ -47,7 +47,7 @@
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
       "artifactVersion": "2.1.1+mc1.20.1",
-      "commit": "86219478066797556e2fc2ae17973e33a995bdb1",
+      "commit": "9363f2f71caf92e9764351eed74a7b7bf71f1be8",
       "releaseOrder": 4
     },
     {
@@ -56,9 +56,9 @@
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
       "artifactVersion": "2.1.1+mc1.20.1",
-      "commit": "4ab46924de387d43384872d5b3b5fc5534e1b29c",
+      "commit": "900502340251b11e9a393bfcfd829712f4a876b0",
       "releaseOrder": 5
     }
   ],
-  "note": "Minecraft 1.20.1 Fabric/Forge only; Java 25 hosts Gradle, Java 17 compiles/runs Minecraft. Source pins will be updated to tested backport commits before cutover. No 1.20.1 publication or remote CI pass is implied."
+  "note": "Exact Minecraft 1.20.1 Fabric/Forge source commits. The API baseline precedes this manifest update to avoid a self-referential hash; CI consumes the current validated manifest. Java 25 hosts Gradle; Java 17 compiles/runs Minecraft. release-artifacts.json identifies locally tested, unpublished runtime jars. GitHub CI remains independent of local acceptance."
 }

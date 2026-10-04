@@ -70,6 +70,8 @@ See [PORTING.md](PORTING.md) for the loader boundary and
 Desktop-safe 1.20.1 client QA is documented in
 [legacy-client-qa](.github/legacy-client-qa/README.md). Historical 26.x helpers
 are not acceptance evidence for this game line.
+See [the 1.20.1 QA report](QA-MC1.20.1.md) for completed checks and remaining
+release gates. No 1.20.1 CurseForge publication is implied by this source branch.
 
 ## License
 
