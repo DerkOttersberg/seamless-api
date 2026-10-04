@@ -6,7 +6,7 @@ base {
     archivesName = rootProject.archives_base_name
 }
 
-// Forge 26.2 transforms one named module. Fold common sources into that
+// Forge 26.3 transforms one named module. Fold common sources into that
 // module so the public API and loader entrypoint share the same classloader.
 sourceSets.main {
     java.srcDir rootProject.file('common/src/main/java')
@@ -14,7 +14,7 @@ sourceSets.main {
 }
 
 // Loom 1.17's legacy Forge mapping services are incompatible with the
-// unobfuscated 26.2 release and incorrectly require a mappings file.
+// unobfuscated 26.3 release and incorrectly require a mappings file.
 configurations.forgeRuntimeLibrary {
     exclude group: 'dev.architectury', module: 'architectury-naming-service'
     exclude group: 'dev.architectury', module: 'architectury-mixin-remapper-service'
@@ -35,9 +35,9 @@ loom {
 
 def metadataProperties = [
     mod_version: project.version,
-    loader_version_range: '[65,)',
-    forge_version_range: '[65.1.3,66)',
-    minecraft_version_range: '[26.2,26.3)'
+    loader_version_range: '[66,)',
+    forge_version_range: '[66.0.9,67)',
+    minecraft_version_range: '[26.3,26.4)'
 ]
 
 processResources {

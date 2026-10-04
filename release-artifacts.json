@@ -1,0 +1,92 @@
+[
+  {
+    "file": "pretty-meteors-with-trails-2.0.2+mc26.3-fabric.jar",
+    "minecraft": "26.3",
+    "loader": "fabric",
+    "sha256": "22a88164adf24dee5689437fcee04aaedfb7573ba2be61e9eee11f7461b0f636"
+  },
+  {
+    "file": "seamless-api-2.0.2+mc26.3-fabric.jar",
+    "minecraft": "26.3",
+    "loader": "fabric",
+    "sha256": "f9b98bd2551c9724ea3f3248a0216a75d12ff3ab6da3e38cc6c1864a1bbc3076"
+  },
+  {
+    "file": "seamless-crafting-2.1.1+mc26.3-fabric.jar",
+    "minecraft": "26.3",
+    "loader": "fabric",
+    "sha256": "f17abddba53b09adf05af745da11c8be3e5102f0f73e105e689a73e813078b50"
+  },
+  {
+    "file": "seamless-deconstructing-workbench-2.1.1+mc26.3-fabric.jar",
+    "minecraft": "26.3",
+    "loader": "fabric",
+    "sha256": "8a23053581bf7fc5244d95b80ca46555e154ce9c6d1282e2a55990f3d5c5b92c"
+  },
+  {
+    "file": "sword-throw-2.1.1+mc26.3-fabric.jar",
+    "minecraft": "26.3",
+    "loader": "fabric",
+    "sha256": "0a9d5416b7505943828f251605884f9f2bd0ae38c853df052e69fd498512cdc0"
+  },
+  {
+    "file": "pretty-meteors-with-trails-2.0.2+mc26.3-forge.jar",
+    "minecraft": "26.3",
+    "loader": "forge",
+    "sha256": "4fb744d91ad7323f689bf1b820b2aeb09b2a8c3ea35c09241dc04a548eff9dff"
+  },
+  {
+    "file": "seamless-api-2.0.2+mc26.3-forge.jar",
+    "minecraft": "26.3",
+    "loader": "forge",
+    "sha256": "b41ac80f85a3c85e541aed273aba52e56e952f8b2c640f7e50d18537c54df9c6"
+  },
+  {
+    "file": "seamless-crafting-2.1.1+mc26.3-forge.jar",
+    "minecraft": "26.3",
+    "loader": "forge",
+    "sha256": "0e1078299ef9d07c3ce823a85180e5cd7de0cd1353daa0ccf731d8699b946bb2"
+  },
+  {
+    "file": "seamless-deconstructing-workbench-2.1.1+mc26.3-forge.jar",
+    "minecraft": "26.3",
+    "loader": "forge",
+    "sha256": "74e05f243382f90ba09b4c8ea9d0de03b43f41c3ac7336ff2de4eb67b5bdc3f2"
+  },
+  {
+    "file": "sword-throw-2.1.1+mc26.3-forge.jar",
+    "minecraft": "26.3",
+    "loader": "forge",
+    "sha256": "b5dce6eb09abf6ad1404b8e1af08781b1fd59381e58cb06337df24c58111ddb1"
+  },
+  {
+    "file": "pretty-meteors-with-trails-2.0.2+mc26.3-neoforge.jar",
+    "minecraft": "26.3",
+    "loader": "neoforge",
+    "sha256": "b3886ebcf5c1ab0771aee7c13895988b9540675583a5649c6ad76209bc967657"
+  },
+  {
+    "file": "seamless-api-2.0.2+mc26.3-neoforge.jar",
+    "minecraft": "26.3",
+    "loader": "neoforge",
+    "sha256": "7817aca83b2dd8e5b64869545a7e82a9406d61c13e10d6584d56b7faab7b78d0"
+  },
+  {
+    "file": "seamless-crafting-2.1.1+mc26.3-neoforge.jar",
+    "minecraft": "26.3",
+    "loader": "neoforge",
+    "sha256": "6e64f478e272d26c228ecc2b12b960b697917bdc824476e62ab17cc84c830d1d"
+  },
+  {
+    "file": "seamless-deconstructing-workbench-2.1.1+mc26.3-neoforge.jar",
+    "minecraft": "26.3",
+    "loader": "neoforge",
+    "sha256": "72a227b8acd8137535a7a92b30a42d9f3e2ad912205b12c8b106967dffa46e90"
+  },
+  {
+    "file": "sword-throw-2.1.1+mc26.3-neoforge.jar",
+    "minecraft": "26.3",
+    "loader": "neoforge",
+    "sha256": "4092e36458572b2d7687f823ab05fb8b21ded57bd1eb4d231988e31fe84a2833"
+  }
+]

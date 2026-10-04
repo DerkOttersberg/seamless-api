@@ -1,4 +1,4 @@
-plugins { id 'dev.architectury.loom-no-remap' version '1.17.491' }
+plugins { id 'dev.architectury.loom-no-remap' version '1.17.493' }
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
@@ -12,12 +12,12 @@ sourceSets.main {
     resources.srcDirs = ['src/common/resources', 'src/' + loader + '/resources']
 }
 dependencies {
-    minecraft 'com.mojang:minecraft:26.2'
+    minecraft 'com.mojang:minecraft:26.3'
     if (loader == 'fabric') {
-        implementation 'net.fabricmc:fabric-loader:0.19.3'
-        implementation 'net.fabricmc.fabric-api:fabric-api:0.159.0+26.2'
-    } else if (loader == 'forge') forge 'net.minecraftforge:forge:26.2-65.1.3'
-    else neoForge 'net.neoforged:neoforge:26.2.0.75'
+        implementation 'net.fabricmc:fabric-loader:0.19.5'
+        implementation 'net.fabricmc.fabric-api:fabric-api:0.161.0+26.3'
+    } else if (loader == 'forge') forge 'net.minecraftforge:forge:26.3-66.0.9'
+    else neoForge 'net.neoforged:neoforge:26.3.0.48-beta'
     compileOnly fileTree(providers.gradleProperty('runtimeJarsDir').orElse('../../../qa-artifacts/final-runtime-jars-v7/' + loader).get()) { include '*.jar' }
 }
 tasks.named('jar', Jar) {

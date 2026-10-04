@@ -3,7 +3,7 @@ name: locked-suite
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, '26.3']
     paths:
       - suite-lock.json
       - .github/workflows/suite.yml
@@ -66,7 +66,7 @@ jobs:
       - name: Upload canonical runtime jars
         uses: actions/upload-artifact@v4
         with:
-          name: minecraft-26.2-runtime-jars
+          name: minecraft-26.3-runtime-jars
           if-no-files-found: error
           path: runtime-jars
       - name: Upload locked-suite reports and logs
@@ -98,7 +98,7 @@ jobs:
           java-version: '25'
       - uses: actions/download-artifact@v4
         with:
-          name: minecraft-26.2-runtime-jars
+          name: minecraft-26.3-runtime-jars
           path: runtime-jars
       - name: Start and reload the packaged ${{ matrix.loader }} suite
         shell: bash
@@ -153,7 +153,7 @@ jobs:
           sudo apt-get install --yes xvfb libgl1-mesa-dri libglx-mesa0 libasound2t64
       - uses: actions/download-artifact@v4
         with:
-          name: minecraft-26.2-runtime-jars
+          name: minecraft-26.3-runtime-jars
           path: runtime-jars
       - uses: actions/download-artifact@v4
         with:

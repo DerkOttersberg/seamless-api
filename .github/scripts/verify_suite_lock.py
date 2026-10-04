@@ -15,49 +15,49 @@ EXPECTED_REPOSITORIES = {
         "name": "Seamless API",
         "repository": "DerkOttersberg/seamless-api",
         "artifactBase": "seamless-api",
-        "artifactVersion": "2.0.1+mc26.2",
+        "artifactVersion": "2.0.2+mc26.3",
         "releaseOrder": 1,
     },
     "pretty-meteors-with-trails": {
         "name": "Pretty Meteors with Trails",
         "repository": "DerkOttersberg/pretty-meteors-with-trails",
         "artifactBase": "pretty-meteors-with-trails",
-        "artifactVersion": "2.0.1+mc26.2",
+        "artifactVersion": "2.0.2+mc26.3",
         "releaseOrder": 2,
     },
     "seamless-deconstructing-workbench": {
         "name": "Seamless Deconstructing Workbench",
         "repository": "DerkOttersberg/seamless-deconstructing-workbench",
         "artifactBase": "seamless-deconstructing-workbench",
-        "artifactVersion": "2.1.0+mc26.2",
+        "artifactVersion": "2.1.1+mc26.3",
         "releaseOrder": 3,
     },
     "seamless-crafting": {
         "name": "Seamless Crafting",
         "repository": "DerkOttersberg/seamless-crafting",
         "artifactBase": "seamless-crafting",
-        "artifactVersion": "2.1.0+mc26.2",
+        "artifactVersion": "2.1.1+mc26.3",
         "releaseOrder": 4,
     },
     "sword-throw": {
         "name": "Sword Throw",
         "repository": "DerkOttersberg/sword-throw",
         "artifactBase": "sword-throw",
-        "artifactVersion": "2.1.0+mc26.2",
+        "artifactVersion": "2.1.1+mc26.3",
         "releaseOrder": 5,
     },
 }
 
-EXPECTED_SUITE_VERSION = "2.1.0+mc26.2"
+EXPECTED_SUITE_VERSION = "2.1.1+mc26.3"
 EXPECTED_TOOLING = {
     "architecturyPlugin": "3.5.169",
-    "architecturyLoom": "1.17.491",
+    "architecturyLoom": "1.17.493",
 }
 EXPECTED_LOADERS = {
-    "fabricLoader": "0.19.3",
-    "fabricApi": "0.159.0+26.2",
-    "forge": "26.2-65.1.3",
-    "neoforge": "26.2.0.75",
+    "fabricLoader": "0.19.5",
+    "fabricApi": "0.161.0+26.3",
+    "forge": "26.3-66.0.9",
+    "neoforge": "26.3.0.48-beta",
 }
 
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -92,9 +92,9 @@ def validate_manifest(manifest: Any) -> list[str]:
             errors.append(f"{key} must be {expected!r}, got {actual!r}")
 
     require_exact("schemaVersion", 1)
-    require_exact("minecraft", "26.2")
+    require_exact("minecraft", "26.3")
     require_exact("java", 25)
-    require_exact("gradle", "9.5.1")
+    require_exact("gradle", "9.6.0")
     require_exact("suiteVersion", EXPECTED_SUITE_VERSION)
     require_exact("tooling", EXPECTED_TOOLING)
     require_exact("loaders", EXPECTED_LOADERS)
@@ -183,7 +183,7 @@ def main(argv: list[str]) -> int:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
-    print(f"Validated {path} with five pinned Minecraft 26.2 release artifacts.")
+    print(f"Validated {path} with five pinned Minecraft 26.3 release artifacts.")
     return 0
 
 

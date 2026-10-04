@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly MINECRAFT_VERSION="26.2"
-readonly FABRIC_LOADER_VERSION="0.19.3"
+readonly MINECRAFT_VERSION="26.3"
+readonly FABRIC_LOADER_VERSION="0.19.5"
 readonly FABRIC_INSTALLER_VERSION="1.1.2"
-readonly FABRIC_API_VERSION="0.159.0+26.2"
-readonly FORGE_VERSION="26.2-65.1.3"
-readonly NEOFORGE_VERSION="26.2.0.75"
+readonly FABRIC_API_VERSION="0.161.0+26.3"
+readonly FORGE_VERSION="26.3-66.0.9"
+readonly NEOFORGE_VERSION="26.3.0.48-beta"
 readonly RCON_PASSWORD="release-hardening-local-only"
 readonly WORKBENCH_POS="0 200 0"
 readonly HISTORICAL_WORKBENCH_POS="512 200 0"
@@ -297,9 +297,13 @@ case "$loader" in
       cd "$run_dir"
       java -jar forge-installer.jar --installServer
     )
+    forge_args="libraries/net/minecraftforge/forge/${FORGE_VERSION}/unix_args.txt"
+    case "$(uname -s)" in
+      MINGW*|MSYS*|CYGWIN*) forge_args="libraries/net/minecraftforge/forge/${FORGE_VERSION}/win_args.txt" ;;
+    esac
     launch_command=(
       java -Xms512M -Xmx2G
-      @"libraries/net/minecraftforge/forge/${FORGE_VERSION}/unix_args.txt"
+      @"${forge_args}"
       nogui
     )
     ;;
@@ -335,6 +339,7 @@ printf '%s\n' \
   'level-name=suite-world' \
   'max-tick-time=120000' \
   'online-mode=false' \
+  'pause-when-empty-seconds=0' \
   "rcon.password=${RCON_PASSWORD}" \
   "rcon.port=${RCON_PORT}" \
   'server-ip=127.0.0.1' \

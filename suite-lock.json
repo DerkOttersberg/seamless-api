@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "suiteVersion": "2.1.0+mc26.2",
-  "minecraft": "26.2",
+  "suiteVersion": "2.1.1+mc26.3",
+  "minecraft": "26.3",
   "java": 25,
-  "gradle": "9.5.1",
+  "gradle": "9.6.0",
   "tooling": {
     "architecturyPlugin": "3.5.169",
-    "architecturyLoom": "1.17.491"
+    "architecturyLoom": "1.17.493"
   },
   "loaders": {
-    "fabricLoader": "0.19.3",
-    "fabricApi": "0.159.0+26.2",
-    "forge": "26.2-65.1.3",
-    "neoforge": "26.2.0.75"
+    "fabricLoader": "0.19.5",
+    "fabricApi": "0.161.0+26.3",
+    "forge": "26.3-66.0.9",
+    "neoforge": "26.3.0.48-beta"
   },
   "repositories": [
     {
@@ -20,7 +20,7 @@
       "repository": "DerkOttersberg/seamless-api",
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
-      "artifactVersion": "2.0.1+mc26.2",
+      "artifactVersion": "2.0.2+mc26.3",
       "commit": "c71b236709a8603c5739d8ab1892a98b27709125",
       "releaseOrder": 1
     },
@@ -29,7 +29,7 @@
       "repository": "DerkOttersberg/pretty-meteors-with-trails",
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
-      "artifactVersion": "2.0.1+mc26.2",
+      "artifactVersion": "2.0.2+mc26.3",
       "commit": "5302c9d2c8072a6d054f7b1dcf25593c6138feaf",
       "releaseOrder": 2
     },
@@ -38,7 +38,7 @@
       "repository": "DerkOttersberg/seamless-deconstructing-workbench",
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
-      "artifactVersion": "2.1.0+mc26.2",
+      "artifactVersion": "2.1.1+mc26.3",
       "commit": "78a79ad925ebbafbe00a48aa99c04eaf029ce32d",
       "releaseOrder": 3
     },
@@ -47,7 +47,7 @@
       "repository": "DerkOttersberg/seamless-crafting",
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
-      "artifactVersion": "2.1.0+mc26.2",
+      "artifactVersion": "2.1.1+mc26.3",
       "commit": "ec850ea6a0c942a55beb4acf68d1d6a748b91575",
       "releaseOrder": 4
     },
@@ -56,10 +56,10 @@
       "repository": "DerkOttersberg/sword-throw",
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
-      "artifactVersion": "2.1.0+mc26.2",
+      "artifactVersion": "2.1.1+mc26.3",
       "commit": "0d86beab9ca532f2f5a7a4c15605a0b7422c04d1",
       "releaseOrder": 5
     }
   ],
-  "note": "The API entry is the tested source baseline. This manifest is stored in a metadata-only descendant, so it cannot include its own containing commit hash."
+  "note": "LOCAL 26.3 PORT: commit fields record the original 26.2 source baselines, NOT the modified 26.3 source state. GitHub work is paused. Runtime artifact hashes and actual test results are recorded separately under qa-artifacts/mc26.3; do not treat these baseline commits as reproducible 26.3 releases."
 }

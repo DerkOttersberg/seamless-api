@@ -4,6 +4,7 @@
   "package": "qa.runtime.mixin",
   "compatibilityLevel": "JAVA_21",
   "priority": 500,
+  "mixins": ["ServerThrowProbeMixin"],
   "client": ["ClientTickMixin", "ChatMixin", "ThrowStateMixin", "PlayerModelProbeMixin", "MinecraftProbeAccessor"],
   "injectors": {"defaultRequire": 1}
 }

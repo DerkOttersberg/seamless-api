@@ -1,1 +1,1 @@
-{"schemaVersion":1,"id":"qastandalone","version":"1.0.0","name":"Standalone Acceptance QA","license":"MIT","mixins":["qa-standalone.mixins.json"],"depends":{"fabricloader":">=0.19.3","minecraft":"~26.2","java":">=25"}}
+{"schemaVersion":1,"id":"qastandalone","version":"1.0.0","name":"Standalone Acceptance QA","license":"MIT","mixins":["qa-standalone.mixins.json"],"depends":{"fabricloader":">=0.19.5","minecraft":"~26.3","java":">=25"}}

@@ -28,6 +28,9 @@ foreach ($entry in $lock.repositories) {
     if (!(Test-Path -LiteralPath (Join-Path $jars "$($entry.artifactBase)-$($entry.artifactVersion)-$Loader.jar"))) { throw "Missing locked artifact $($entry.artifactBase)" }
 }
 New-Item -ItemType Directory -Path $runRoot -Force | Out-Null
+$runtimeJars | Sort-Object Name | ForEach-Object {
+    [pscustomobject]@{file=$_.Name;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
+} | ConvertTo-Json | Set-Content -LiteralPath "$runRoot/production-jars-sha256.json" -Encoding UTF8
 # Windows PowerShell turns native stderr warnings into ErrorRecords. They are
 # diagnostic output, not build failures; use the process exit code as the gate.
 $previousErrorPreference = $ErrorActionPreference
@@ -41,7 +44,12 @@ $helper = "$repoRoot/.github/runtime-acceptance/build/libs/qa-runtime-acceptance
 $serverRoot = Join-Path $runRoot 'server'
 New-Item -ItemType Directory -Path "$serverRoot/mods" -Force | Out-Null
 $entries = if ($Loader -eq 'fabric') { @('libraries','versions','fabric-server-launch.jar','fabric-server-launcher.properties','server.jar') } elseif ($Loader -eq 'forge') { @('libraries',"forge-$($lock.loaders.forge)-shim.jar") } else { @('libraries') }
-foreach ($entry in $entries) { Copy-Item -LiteralPath (Join-Path $template $entry) -Destination (Join-Path $serverRoot $entry) -Recurse }
+foreach ($entry in $entries) {
+    $source = Join-Path $template $entry
+    # Fabric's bundled server creates versions/ on its first boot, not install.
+    if ($entry -in @('versions','fabric-server-launcher.properties') -and !(Test-Path -LiteralPath $source)) { continue }
+    Copy-Item -LiteralPath $source -Destination (Join-Path $serverRoot $entry) -Recurse
+}
 foreach ($jar in $runtimeJars) { Copy-Item -LiteralPath $jar.FullName -Destination "$serverRoot/mods/" }
 Copy-Item -LiteralPath $helper -Destination "$serverRoot/mods/"
 if ($Loader -eq 'fabric') {
@@ -50,7 +58,7 @@ if ($Loader -eq 'fabric') {
     if (Test-Path -LiteralPath $cachedApi) { Copy-Item -LiteralPath $cachedApi -Destination $fabricApi }
     else { Invoke-WebRequest "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/$($lock.loaders.fabricApi)/fabric-api-$($lock.loaders.fabricApi).jar" -OutFile $fabricApi }
 }
-@("allow-flight=true","enable-rcon=true","rcon.password=release-hardening-local-only","rcon.port=$RconPort","server-ip=127.0.0.1","server-port=$Port","online-mode=false","enforce-secure-profile=false","spawn-protection=0","level-name=qa-world","level-type=minecraft:flat","view-distance=8","simulation-distance=5","max-tick-time=120000","pause-when-empty-seconds=0") | Set-Content -LiteralPath "$serverRoot/server.properties" -Encoding ASCII
+@("allow-flight=true","gamemode=creative","difficulty=peaceful","white-list=false","enable-rcon=true","rcon.password=release-hardening-local-only","rcon.port=$RconPort","server-ip=127.0.0.1","server-port=$Port","online-mode=false","enforce-secure-profile=false","spawn-protection=0","level-name=qa-world","level-type=minecraft:flat",'generator-settings={"biome":"minecraft:plains","layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"features":false,"lakes":false}',"view-distance=8","simulation-distance=5","max-tick-time=120000","pause-when-empty-seconds=0") | Set-Content -LiteralPath "$serverRoot/server.properties" -Encoding ASCII
 'eula=true' | Set-Content -LiteralPath "$serverRoot/eula.txt" -Encoding ASCII
 $serverArguments = @('-Xms512M','-Xmx2G','-Dqa.runtime.acceptance=true')
 if ($Loader -eq 'fabric') { $serverArguments += @('-jar','fabric-server-launch.jar','nogui') }

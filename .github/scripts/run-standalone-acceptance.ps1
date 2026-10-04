@@ -37,6 +37,7 @@ function Stop-OwnedTree($RootProcess) {
 $seed = Join-Path $runRoot 'vanilla-seed'
 New-Item -ItemType Directory -Path $seed -Force | Out-Null
 foreach ($entry in @('libraries','versions','fabric-server-launch.jar','fabric-server-launcher.properties','server.jar')) {
+    if ($entry -in @('versions','fabric-server-launcher.properties') -and !(Test-Path -LiteralPath (Join-Path $template $entry))) { continue }
     Copy-Item -LiteralPath (Join-Path $template $entry) -Destination (Join-Path $seed $entry) -Recurse
 }
 @("server-ip=127.0.0.1","server-port=$SeedPort","enable-rcon=true","rcon.port=$SeedRconPort","rcon.password=release-hardening-local-only","online-mode=false","enforce-secure-profile=false","level-name=qa-world","level-type=minecraft:flat",'generator-settings={"biome":"minecraft:plains","layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"features":false,"lakes":false}',"pause-when-empty-seconds=0") | Set-Content -LiteralPath "$seed/server.properties" -Encoding ASCII

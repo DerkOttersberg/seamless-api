@@ -45,5 +45,5 @@ GameTests cover registration, storage, recipes, codecs, persistence, and other
 server-side contracts. Human visual review remains useful before publication.
 
 Forge resources must contain valid `pack.mcmeta`: a loading warning in Forge
-65.1.3 can shut down the global event bus while QuickPlay continues into a world.
+66.0.9 can shut down the global event bus while QuickPlay continues into a world.
 Do not hide that failure by freezing the server or replacing loot resources.

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly MINECRAFT_VERSION="26.2"
-readonly FABRIC_API_VERSION="0.159.0+26.2"
-readonly JEI_VERSION="30.29.0.199"
+readonly MINECRAFT_VERSION="26.3"
+readonly FABRIC_API_VERSION="0.161.0+26.3"
+readonly JEI_VERSION="31.9.0.57"
 readonly CLIENT_TIMEOUT_SECONDS="${CLIENT_SMOKE_TIMEOUT_SECONDS:-150}"
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -139,7 +139,7 @@ if grep -Eqi \
 fi
 
 require_log_pattern 'Backend library: LWJGL version' 'the rendered-client LWJGL startup marker'
-require_log_pattern 'Starting integrated minecraft server version 26\.2' 'the quick-play integrated-world marker'
+require_log_pattern 'Starting integrated minecraft server version 26\.3' 'the quick-play integrated-world marker'
 require_log_pattern 'joined the game' 'the client joining the persisted world'
 require_log_pattern 'prettymeteors|pretty-meteors-with-trails' 'Pretty Meteors discovery'
 require_log_pattern 'seamlessapi|seamless-api' 'Seamless API discovery'
@@ -151,8 +151,8 @@ if [[ "$loader" == "neoforge" ]]; then
     'the metadata-only NeoForge test harness'
 fi
 if [[ "$viewer" == "jei" ]]; then
-  require_log_pattern 'jei-[^ ]*30\.29\.0\.199|jei[[:space:]]+30\.29\.0\.199|Just Enough Items' \
-    'JEI 30.29.0.199 discovery'
+  require_log_pattern 'jei-[^ ]*31\.9\.0\.57|jei[[:space:]]+31\.9\.0\.57|Just Enough Items' \
+    'JEI 31.9.0.57 discovery'
   require_log_pattern 'Starting JEI (GUI|took)' 'JEI runtime initialization'
 fi
 

@@ -23,6 +23,10 @@ public final class StandaloneAcceptance {
         var server = client.getSingleplayerServer();
         if (server == null) { fail(client, "Expected an integrated server"); return; }
         ticks++;
+        if (mod.equals("pretty-meteors-with-trails")) {
+            client.player.setXRot(-40.0F);
+            client.player.setYRot(0.0F);
+        }
         if (!started && ticks >= 20) {
             started = true;
             initialServerTick = server.getTickCount();
@@ -63,6 +67,21 @@ public final class StandaloneAcceptance {
         }
         if (serverFailure != null) { fail(client, serverFailure); return; }
         if (started && ticks >= 140 && serverPassed && server.getTickCount() - initialServerTick >= 100) {
+            if (mod.equals("pretty-meteors-with-trails")) {
+                try {
+                    Class<?> stateClass = Class.forName("com.derko.prettymeteors.client.MeteorShowerClientState");
+                    Object state = stateClass.getField("INSTANCE").get(null);
+                    var rendered = stateClass.getDeclaredField("loggedFirstRender");
+                    rendered.setAccessible(true);
+                    if (!rendered.getBoolean(state)) {
+                        fail(client, "Meteor command ran but no active geometry reached the actual world render pass");
+                        return;
+                    }
+                } catch (ReflectiveOperationException failure) {
+                    fail(client, "Could not observe production meteor renderer: " + failure);
+                    return;
+                }
+            }
             Screenshot.grab(client.gameDirectory, "standalone-" + mod + ".png", client.gameRenderer.mainRenderTarget(), 1, ignored -> {});
             write(client, "standalone-passed.txt", "PASS " + mod + ": actual integrated world, initialization, vanilla drops, 100+ server ticks.\n");
             finished = true;

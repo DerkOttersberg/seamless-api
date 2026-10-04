@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom-no-remap' version '1.17.491'
+    id 'dev.architectury.loom-no-remap' version '1.17.493'
 }
 
 // Forge's userdev run template does not forward Loom run properties. Apply
@@ -29,17 +29,17 @@ java {
 }
 
 dependencies {
-    minecraft 'com.mojang:minecraft:26.2'
+    minecraft 'com.mojang:minecraft:26.3'
     if (selectedLoader == 'fabric') {
-        implementation 'net.fabricmc:fabric-loader:0.19.3'
+        implementation 'net.fabricmc:fabric-loader:0.19.5'
     } else if (selectedLoader == 'forge') {
-        forge 'net.minecraftforge:forge:26.2-65.1.3'
+        forge 'net.minecraftforge:forge:26.3-66.0.9'
     } else {
-        neoForge 'net.neoforged:neoforge:26.2.0.75'
+        neoForge 'net.neoforged:neoforge:26.3.0.48-beta'
     }
 }
 
-// Forge 26.2 is released with official names. Loom's legacy naming services try to remap the
+// Forge 26.3 is released with official names. Loom's legacy naming services try to remap the
 // already-named access transformer and make the userdev client reject Forge's own entries.
 // This matches the production repositories' proven Forge run configuration.
 if (selectedLoader == 'forge') {
