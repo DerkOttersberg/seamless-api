@@ -28,8 +28,15 @@ foreach ($entry in $lock.repositories) {
     if (!(Test-Path -LiteralPath (Join-Path $jars "$($entry.artifactBase)-$($entry.artifactVersion)-$Loader.jar"))) { throw "Missing locked artifact $($entry.artifactBase)" }
 }
 New-Item -ItemType Directory -Path $runRoot -Force | Out-Null
-& "$repoRoot/gradlew.bat" --no-daemon -p "$repoRoot/.github/runtime-acceptance" clean jar "-PclientLoader=$Loader" "-PruntimeJarsDir=$jars" *> "$runRoot/helper-build.log"
-if ($LASTEXITCODE -ne 0) { throw 'Acceptance helper did not build.' }
+# Windows PowerShell turns native stderr warnings into ErrorRecords. They are
+# diagnostic output, not build failures; use the process exit code as the gate.
+$previousErrorPreference = $ErrorActionPreference
+try {
+    $ErrorActionPreference = 'Continue'
+    & "$repoRoot/gradlew.bat" --no-daemon -p "$repoRoot/.github/runtime-acceptance" clean jar "-PclientLoader=$Loader" "-PruntimeJarsDir=$jars" *> "$runRoot/helper-build.log"
+    $helperExitCode = $LASTEXITCODE
+} finally { $ErrorActionPreference = $previousErrorPreference }
+if ($helperExitCode -ne 0) { throw 'Acceptance helper did not build.' }
 $helper = "$repoRoot/.github/runtime-acceptance/build/libs/qa-runtime-acceptance-$Loader.jar"
 $serverRoot = Join-Path $runRoot 'server'
 New-Item -ItemType Directory -Path "$serverRoot/mods" -Force | Out-Null

@@ -3,6 +3,7 @@ package qa.runtime;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import io.github.derkottersberg.swordthrow.SwordThrow;
+import io.github.derkottersberg.swordthrow.entity.ThrownSwordEntity;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -28,15 +29,24 @@ import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 public final class ServerAcceptance {
     private static int phase, phaseStart, start, ticks;
     private static boolean finished;
+    private static boolean bootstrapped;
+    private static final Set<String> readyClients = new HashSet<>();
     private static ServerPlayer fixturePlayer;
     private static final Set<String> acknowledgements = new HashSet<>();
     private static final BlockPos BARREL = new BlockPos(2, 201, 0);
     private static final BlockPos TABLE = new BlockPos(1, 201, 0);
     private static ItemStack template;
+    private static double partialLaunchSpeed, fullLaunchSpeed;
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("qa_acceptance")
-            .then(Commands.literal("ack").then(Commands.argument("phase", IntegerArgumentType.integer(1, 14))
+            .then(Commands.literal("ready").executes(context -> {
+                String name = context.getSource().getPlayerOrException().getGameProfile().name();
+                if (!Set.of("QA_A", "QA_B").contains(name)) return 0;
+                readyClients.add(name);
+                return 1;
+            }))
+            .then(Commands.literal("ack").then(Commands.argument("phase", IntegerArgumentType.integer(1, 18))
                 .executes(context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     if (!Set.of("QA_A", "QA_B").contains(player.getGameProfile().name())) return 0;
@@ -55,16 +65,34 @@ public final class ServerAcceptance {
         ServerPlayer b = server.getPlayerList().getPlayerByName("QA_B");
         if (phase == 0) {
             if (a == null || b == null) return;
+            if (!bootstrapped) {
+                a.setGameMode(GameType.CREATIVE);
+                b.setGameMode(GameType.CREATIVE);
+                bootstrapped = true;
+                return;
+            }
+            // Initial creative inventory sync can overwrite an early fixture.
+            // Commands share the real client connection's packet ordering: wait
+            // until both clients have loaded their world and acknowledged readiness.
+            if (!readyClients.containsAll(Set.of("QA_A", "QA_B"))) return;
             start = ticks;
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "fill -8 200 -8 8 200 12 minecraft:stone");
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "tp QA_A 0.5 201 0.5 0 0");
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "tp QA_B 0.5 201 6.5 180 0");
-            a.setGameMode(GameType.CREATIVE);
-            b.setGameMode(GameType.CREATIVE);
             next(server, 1);
             return;
         }
         if (ticks - start > 6000 || ticks - phaseStart > 600) fail("Timed out waiting for phase " + phase + ": " + acknowledgements);
+        if (phase == 16 || phase == 17) {
+            for (var entity : server.overworld().getAllEntities()) {
+                if (entity instanceof ThrownSwordEntity thrown && thrown.getOwner() == a
+                    && ItemStack.isSameItemSameComponents(thrown.getItem(), template)) {
+                    double speed = thrown.getDeltaMovement().length();
+                    if (phase == 16 && partialLaunchSpeed == 0) partialLaunchSpeed = speed;
+                    if (phase == 17 && fullLaunchSpeed == 0) fullLaunchSpeed = speed;
+                }
+            }
+        }
         if (phase == 12 && ticks - phaseStart == 30) {
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "execute in minecraft:the_nether run tp QA_A 0 80 0");
         }
@@ -82,9 +110,13 @@ public final class ServerAcceptance {
         int minimum = phase == 6 ? 30 : (phase <= 7 ? 20 : 5);
         if (ticks - phaseStart < minimum || acknowledgements.size() != 2) return;
         if (phase == 8 || phase == 9 || phase == 11) verifyFixture(server, "menu/reconnect phase " + phase);
-        if (phase == 14) {
+        if (phase == 14 && a.getMainHandItem().getCount() != 2) fail("Shared Drop key tap did not drop exactly one item");
+        if (phase == 15 && !ItemStack.matches(a.getMainHandItem(), template)) fail("Custom Throw key tap changed/dropped its item");
+        if (phase == 16 && (partialLaunchSpeed < 1.1D || partialLaunchSpeed > 1.5D || !a.getMainHandItem().isEmpty())) fail("Partial throw power/conservation failed: " + partialLaunchSpeed);
+        if (phase == 17 && (fullLaunchSpeed < 2.1D || fullLaunchSpeed > 2.5D || fullLaunchSpeed <= partialLaunchSpeed + 0.6D || !a.getMainHandItem().isEmpty())) fail("Full throw power/conservation failed: " + fullLaunchSpeed);
+        if (phase == 18) {
             finished = true;
-            write("runtime-server-passed.txt", "PASS remote charge/release/cancel/isolation/late tracking; inventory/table close; real disconnect/reconnect; dimension/respawn.\n");
+            write("runtime-server-passed.txt", "PASS remote charge/release/cancel/isolation/late tracking; inventory/table close; real disconnect/reconnect; dimension/respawn; shared-key tap, custom-key tap, partial/full throws. Partial speed=" + partialLaunchSpeed + " full speed=" + fullLaunchSpeed + "\n");
             log("All real two-client scenarios passed");
             return;
         }
@@ -112,6 +144,15 @@ public final class ServerAcceptance {
         if (phase == 13) {
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "execute in minecraft:overworld run tp QA_A 0.5 201 0.5 0 0");
             a.getInventory().setItem(0, new ItemStack(Items.IRON_SWORD));
+            a.containerMenu.broadcastChanges();
+        }
+        if (phase >= 14 && phase <= 17) {
+            SwordThrow.clearCharge(a);
+            a.setGameMode(GameType.SURVIVAL);
+            a.getInventory().clearContent();
+            template = new ItemStack(Items.IRON_SWORD, 3);
+            template.set(DataComponents.CUSTOM_NAME, Component.literal("QA charge phase " + phase));
+            a.getInventory().setItem(0, template.copy());
             a.containerMenu.broadcastChanges();
         }
         if (a != null) a.sendSystemMessage(Component.literal("QA_ACCEPTANCE_PHASE " + phase));

@@ -26,24 +26,30 @@ public final class ClientAcceptance {
     private static int phase, ticks, reconnectTicks, models;
     private static boolean acknowledged, initialized, disconnected, finished;
     private static final Map<Integer, ThrowStatePayload.Phase> phases = new HashMap<>();
+    private static final Map<Integer, Integer> releaseCharges = new HashMap<>();
+    private static final Map<Integer, Integer> authoritativeCharges = new HashMap<>();
     private static final Set<Integer> rendered = new HashSet<>();
     private static String role;
     private static net.minecraft.client.player.LocalPlayer respawnSource;
     private static int shutdownTicks;
     private static int productionTicks;
+    private static int readyTicks;
+    private static boolean readySent;
     public static void productionTick() { productionTicks++; }
 
     public static void message(String text) {
         if (!text.startsWith("QA_ACCEPTANCE_PHASE ")) return;
         int next = Integer.parseInt(text.substring("QA_ACCEPTANCE_PHASE ".length()));
         if (phase == next) return;
-        phase = next; ticks = 0; acknowledged = false; phases.clear(); rendered.clear();
+        phase = next; ticks = 0; acknowledged = false; phases.clear(); rendered.clear(); releaseCharges.clear(); authoritativeCharges.clear();
         respawnSource = null;
         log("phase=" + phase);
     }
 
     public static void payload(ThrowStatePayload payload) {
         phases.put(payload.playerEntityId(), payload.phase());
+        if (payload.phase() == ThrowStatePayload.Phase.RELEASE) releaseCharges.put(payload.playerEntityId(), payload.chargeTicks());
+        if (payload.phase() == ThrowStatePayload.Phase.CHARGING) authoritativeCharges.put(payload.playerEntityId(), payload.chargeTicks());
         log("actual server packet actor=" + payload.playerEntityId() + " " + payload.phase() + " charge=" + payload.chargeTicks());
     }
 
@@ -97,7 +103,18 @@ public final class ClientAcceptance {
             client.options.mainHand().set(role.equals("QA_A") ? HumanoidArm.RIGHT : HumanoidArm.LEFT);
             for (PlayerModelPart part : PlayerModelPart.values()) client.options.setModelPart(part, true);
         }
-        if (phase == 0) return;
+        if (phase == 0) {
+            SwordThrowKeyMappings.THROW.setDown(false);
+            if (client.gui.screen() == null && client.gui.overlay() == null
+                && client.player.getAbilities().instabuild) {
+                if (!readySent && ++readyTicks >= 20) {
+                    client.getConnection().sendCommand("qa_acceptance ready");
+                    readySent = true;
+                    log("Ready after initial world/creative inventory synchronization");
+                }
+            } else readyTicks = 0;
+            return;
+        }
         ticks++;
         if (ticks == 1 || ticks % 100 == 0) log("diagnostic: productionTicks=" + productionTicks + " gameLoadFinished=" + ((qa.runtime.mixin.MinecraftProbeAccessor)client).qa$gameLoadFinished()
             + " keyDown=" + SwordThrowKeyMappings.THROW.isDown() + " held=" + client.player.getMainHandItem() + " screen=" + (client.gui.screen()==null ? "none" : client.gui.screen().getClass().getName()));
@@ -107,6 +124,17 @@ public final class ClientAcceptance {
         if (phase == 12 && a) charge = client.level.dimension().equals(net.minecraft.world.level.Level.OVERWORLD);
         if (phase == 13 && a) charge = client.player == respawnSource && client.player.isAlive();
         if ((phase == 1 || phase == 6 || phase == 7) && !a) charge = false;
+        if (phase >= 14 && phase <= 17 && a) {
+            if (ticks == 1) {
+                SwordThrowKeyMappings.THROW.setKey(com.mojang.blaze3d.platform.InputConstants.getKey(
+                    phase == 15 ? "key.keyboard.r" : client.options.keyDrop.saveString()));
+                net.minecraft.client.KeyMapping.resetMapping();
+            }
+            // Paired clients can tick faster than a busy test server. Full power
+            // must wait for a real server heartbeat, not assume equal clocks.
+            charge = phase == 17 ? authoritativeCharges.getOrDefault(client.player.getId(), 0) < 30
+                : ticks <= (phase <= 15 ? 1 : 6);
+        }
         SwordThrowKeyMappings.THROW.setDown(charge);
         if (ticks == 1 && phase == 4 && a) client.setScreenAndShow(new InventoryScreen(client.player));
         if (ticks == 1 && phase == 5 && a) client.setScreenAndShow(null);
@@ -139,15 +167,20 @@ public final class ClientAcceptance {
             case 11 -> a ? ticks >= 20 && SwordThrowClient.localPoseState().isIdle() : ticks >= 20;
             case 12 -> a ? client.level.dimension().equals(net.minecraft.world.level.Level.NETHER) && SwordThrowClient.localPoseState().isIdle() : ticks >= 35 && other == null;
             case 13 -> a ? respawnSource != null && client.player != respawnSource && client.player.isAlive() && SwordThrowClient.localPoseState().isIdle() : ticks >= 50;
-            case 14 -> true;
+            case 14, 15 -> ticks >= 20 && (!a || received(local, ThrowStatePayload.Phase.CANCEL));
+            case 16 -> !a ? received(remote, ThrowStatePayload.Phase.RELEASE)
+                : releaseCharges.containsKey(local) && releaseCharges.get(local) >= 2 && releaseCharges.get(local) <= 6;
+            case 17 -> !a ? received(remote, ThrowStatePayload.Phase.RELEASE)
+                : releaseCharges.getOrDefault(local, -1) == 30;
+            case 18 -> true;
             default -> false;
         };
         if (!ready) return;
         acknowledged = true;
         log("PASS phase " + phase + " models=" + models);
-        if (phase <= 7) Screenshot.grab(client.gameDirectory, role + "-phase-" + phase + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> log(message.getString()));
+        if (phase <= 7 || phase >= 14) Screenshot.grab(client.gameDirectory, role + "-phase-" + phase + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> log(message.getString()));
         client.getConnection().sendCommand("qa_acceptance ack " + phase);
-        if (phase == 14) {
+        if (phase == 18) {
             try { Files.writeString(client.gameDirectory.toPath().resolve("runtime-client-passed.txt"), "PASS real paired-client scenarios; animated player-model checks=" + models + "\n"); }
             catch (Exception e) { throw new RuntimeException(e); }
             finished = true;

@@ -28,7 +28,13 @@ This is an explicit loader configuration workaround, not a mod compatibility fix
 Scenarios: charge/release/cancel, simultaneous independent poses, hidden skin
 layers, leaving/re-entering tracking range, inventory/table close conservation,
 real disconnect/reconnect with exact item components, charged dimension change,
-death/respawn, and client/server cleanup. Model assertions compare the actual
+death/respawn, shared Drop-key taps, separately bound Throw-key taps, partial
+throws, full-power throws, and client/server cleanup. Full-power tests wait for
+an actual 30-tick server heartbeat rather than assuming equal client/server
+clocks. Initial fixtures wait for both clients' world/creative inventory
+readiness acknowledgements, preventing startup synchronization from replacing
+test inventory. The server independently checks projectile launch speed and survival
+inventory conservation. Model assertions compare the actual
 vanilla baseline with the expected arm delta; sleeves must retain their local
 transforms and visibility. Screenshots, logs, and explicit PASS/FAIL files are
 written to the isolated run directory. A process merely starting is not a pass.
