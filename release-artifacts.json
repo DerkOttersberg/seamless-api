@@ -5,7 +5,10 @@
     "loader": "fabric",
     "file": "seamless-api-2.0.2+mc1.21.1-fabric.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1491027,
+    "curseforgeFileId": 9072016,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/seamless-api/files/9072016"
   },
   {
     "sha256": "1c7f92667358f924acd9a82b70ce7542057eb0714dcbde58166707f9c91e4bf0",
@@ -13,7 +16,10 @@
     "loader": "forge",
     "file": "seamless-api-2.0.2+mc1.21.1-forge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1491027,
+    "curseforgeFileId": 9072050,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/seamless-api/files/9072050"
   },
   {
     "sha256": "5e32e8cc61aa6d51c3bde1d93f8a66fcbabc3e89864a54bb5159a35b3154d77c",
@@ -21,7 +27,10 @@
     "loader": "neoforge",
     "file": "seamless-api-2.0.2+mc1.21.1-neoforge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1491027,
+    "curseforgeFileId": 9072071,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/seamless-api/files/9072071"
   },
   {
     "sha256": "d99fc0acc42a500c1aef5c9df9ab9ec50890631523ba3cdf390f2f98c3e95132",
@@ -29,7 +38,10 @@
     "loader": "fabric",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-fabric.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1498805,
+    "curseforgeFileId": 9072173,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/meteor-showers-shooting-stars/files/9072173"
   },
   {
     "sha256": "f7939d1564127e922add9002115c16c9a18b3d91173833813d7730d2c9d4d5bc",
@@ -37,7 +49,10 @@
     "loader": "forge",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-forge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1498805,
+    "curseforgeFileId": 9072180,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/meteor-showers-shooting-stars/files/9072180"
   },
   {
     "sha256": "78e77149ae39bb4956362a30119c8bc5be834c8939d09612caeda17c0623d79e",
@@ -45,7 +60,10 @@
     "loader": "neoforge",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-neoforge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1498805,
+    "curseforgeFileId": 9072187,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/meteor-showers-shooting-stars/files/9072187"
   },
   {
     "sha256": "5a2bebd16d403f65b637f6385a30d61af33b7906ab49bbc912cf40fc0bf48c63",
@@ -53,7 +71,10 @@
     "loader": "fabric",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-fabric.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1493520,
+    "curseforgeFileId": 9072199,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/salvage-table-seamless-item-reclamation/files/9072199"
   },
   {
     "sha256": "abaf876094c5a9c000542d6cd7a0385156ce47ff7d70d2dd0b8c8eec45af4757",
@@ -61,7 +82,10 @@
     "loader": "forge",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-forge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1493520,
+    "curseforgeFileId": 9072201,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/salvage-table-seamless-item-reclamation/files/9072201"
   },
   {
     "sha256": "234387269efe36495bdb270b79f8bacf343412cdae929fddb9c7cb9f0e0adaaa",
@@ -69,7 +93,10 @@
     "loader": "neoforge",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-neoforge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1493520,
+    "curseforgeFileId": 9072204,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/salvage-table-seamless-item-reclamation/files/9072204"
   },
   {
     "sha256": "f866f276be6b607b4ee82f5e8e8a006b0dd7633f9434479ef167060746473fe9",
@@ -77,7 +104,10 @@
     "loader": "fabric",
     "file": "seamless-crafting-2.1.1+mc1.21.1-fabric.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1438872,
+    "curseforgeFileId": 9072215,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/seamless-crafting/files/9072215"
   },
   {
     "sha256": "4d5c88f8ef95e012534979144c9a265cccf7b279e7e8d6d8b357578839d85988",
@@ -85,7 +115,10 @@
     "loader": "forge",
     "file": "seamless-crafting-2.1.1+mc1.21.1-forge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1438872,
+    "curseforgeFileId": 9072221,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/seamless-crafting/files/9072221"
   },
   {
     "sha256": "4ca66044aef05efa13141744c42ee13759ff8a290d20066e5621ac28250be24a",
@@ -93,7 +126,10 @@
     "loader": "neoforge",
     "file": "seamless-crafting-2.1.1+mc1.21.1-neoforge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1438872,
+    "curseforgeFileId": 9072226,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/seamless-crafting/files/9072226"
   },
   {
     "sha256": "a5303a93e8212d7b165dd17c068e127d2b241ef0723bb46499f6f3b3c911d9fa",
@@ -101,7 +137,10 @@
     "loader": "fabric",
     "file": "sword-throw-2.1.1+mc1.21.1-fabric.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1496856,
+    "curseforgeFileId": 9072234,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/throw-weapons/files/9072234"
   },
   {
     "sha256": "68fae6626eb1babbde34412ee284e0d6960902bee976abc9a07027def1d7b4db",
@@ -109,7 +148,10 @@
     "loader": "forge",
     "file": "sword-throw-2.1.1+mc1.21.1-forge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1496856,
+    "curseforgeFileId": 9072236,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/throw-weapons/files/9072236"
   },
   {
     "sha256": "13cc18a754de5aef86f0d08ed5020a3591762ae63ed133fd7f461dd93c9957cb",
@@ -117,6 +159,9 @@
     "loader": "neoforge",
     "file": "sword-throw-2.1.1+mc1.21.1-neoforge.jar",
     "accepted": true,
-    "published": false
+    "published": true,
+    "curseforgeProjectId": 1496856,
+    "curseforgeFileId": 9072238,
+    "publicUrl": "https://www.curseforge.com/minecraft/mc-mods/throw-weapons/files/9072238"
   }
 ]
