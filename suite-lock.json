@@ -21,7 +21,7 @@
       "directory": "seamless-api",
       "artifactBase": "seamless-api",
       "artifactVersion": "2.0.2+mc1.21.1",
-      "commit": "6bb9de09ed9e01c1b7614149e6eb2e5e461d367e",
+      "commit": "6d74ecfd22f20a145d206cbbe28e8541ed9b71e9",
       "releaseOrder": 1
     },
     {
@@ -30,7 +30,7 @@
       "directory": "pretty-meteors-with-trails",
       "artifactBase": "pretty-meteors-with-trails",
       "artifactVersion": "2.0.2+mc1.21.1",
-      "commit": "ea658000eb8c97d30011882a25efe442496fc60e",
+      "commit": "6b2552f68f93118c97d0324b714fd5d0e9f4f172",
       "releaseOrder": 2
     },
     {
@@ -39,7 +39,7 @@
       "directory": "seamless-deconstructing-workbench",
       "artifactBase": "seamless-deconstructing-workbench",
       "artifactVersion": "2.1.1+mc1.21.1",
-      "commit": "8d7593f83312dbc09456c782154f6fc6c0ef58c7",
+      "commit": "ad75e9318fe6b261743e35e34522408dc29c4590",
       "releaseOrder": 3
     },
     {
@@ -48,7 +48,7 @@
       "directory": "seamless-crafting",
       "artifactBase": "seamless-crafting",
       "artifactVersion": "2.1.1+mc1.21.1",
-      "commit": "98cef3457086aa795cfed9e624cf425fc6363ade",
+      "commit": "ef691cc5986541605e3abee4dd1b4fef665ffc57",
       "releaseOrder": 4
     },
     {
@@ -57,10 +57,10 @@
       "directory": "sword-throw",
       "artifactBase": "sword-throw",
       "artifactVersion": "2.1.1+mc1.21.1",
-      "commit": "900502340251b11e9a393bfcfd829712f4a876b0",
+      "commit": "350812c1ab86a1dcefe0352006b2916d44482f6f",
       "releaseOrder": 5
     }
   ],
-  "note": "Work in progress: listed commits identify source bases, not the dirty 1.21.1 port or accepted release. Freeze exact port commits only after verification. Java 25 hosts Gradle; Java 21 compiles/runs Minecraft. verify_suite_lock rejects this in-progress lock for locked release builds. No publication is implied.",
-  "sourceState": "in-progress"
+  "note": "Exact local port source commits, not an assertion of runtime acceptance or publication. Remaining native standalone/JEI verification is recorded separately. API pins its preceding source commit to avoid self-reference. Java 25 hosts Gradle; Java 21 compiles/runs Minecraft. No GitHub push is implied.",
+  "sourceState": "frozen"
 }
