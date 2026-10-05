@@ -1,0 +1,6 @@
+{
+  "schemaVersion":1,"id":"qaruntime","version":"1.0.0","name":"Runtime Acceptance QA","license":"MIT",
+  "entrypoints":{"main":["qa.runtime.FabricAcceptance"]},
+  "mixins":["qa-runtime.mixins.json"],
+  "depends":{"fabricloader":">=0.19.5","fabric-api":">=0.116.17","minecraft":"1.21.1","java":">=21"}
+}

@@ -1,37 +1,34 @@
-# Porting guide
+# Minecraft 1.21.1 porting guide
 
-## Version sources
+One version branch holds `common`, `fabric`, `forge` and `neoforge`.
+Pins live only in `gradle/libs.versions.toml`. Java 25 hosts Gradle; Java 21
+compiles/runs Minecraft. Use regular Loom, official Mojang mappings and
+`remapJar`; named development jars are not distributable.
 
-Change Minecraft, Java, loader, Loom, and test versions only in
-`gradle/libs.versions.toml`. Keep `gradle.properties` limited to project
-coordinates and Gradle behavior.
+Keep common code free of loader/JEI imports. Inject platform services explicitly;
+no reflective discovery, runtime Architectury API or shaded SeamlessLib.
+Preserve compatibility/registry IDs, public library packages and licensing.
 
-## Port order
+## Version boundaries
 
-1. Update the official-name Minecraft types used by `common`.
-2. Run common unit tests and `verifyCommonIsolation`.
-3. Update Fabric and Forge entrypoints and platform adapters.
-4. Update each loader's metadata and dependency ranges.
-5. Run `gradlew.bat clean check build` on Java 25, with Java 17 toolchains.
-6. Update dependent composite pins and the suite lock only after all loader
-   jars pass.
+1.21.1 uses item data components and registry-aware persistence,
+`RecipeHolder`/`CraftingInput`, typed `CustomPacketPayload` networking,
+`DeltaTracker` rendering and vanilla vertex APIs. Use singular data paths:
+`recipe`, `loot_table`, `tags/item`, `structure`. Never downgrade a newer world.
 
-## Boundaries
+## Verification
 
-Code in `common` may import Minecraft and Java classes but never Fabric, Forge,
-or NeoForge classes. Entrypoints construct `PlatformServices` explicitly and
-pass them to common bootstrap code. Do not introduce reflection,
-`ServiceLoader`, runtime Architectury API, or shaded API copies.
+Run `clean check build` and inspect all three remapped jars. Forge 52 filters
+GameTest batch namespaces and uses `GameTestDontPrefix`; NeoForge 21 has its
+own template-prefix rules. Test-only source staging must never enter releases.
+Keep test-discovery and required-pass guards.
 
-Preserve public `com.derko.seamlessapi` names whenever Minecraft's changed
-types allow it. A source-breaking signature change requires a migration note
-and changelog entry.
+Test independent installs plus dependencies, combined profiles, genuine
+packaged servers, multiplayer, save/restart, migration backups and actual
+optional integrations. Use the private WSL/Xvfb wrapper for GUI checks only;
+never steal desktop focus or inject OS mouse/keyboard input. Software OpenGL
+does not prove physical-GPU coverage; 1.21.1 has no vanilla Vulkan backend.
 
-## Legacy build boundary
-
-This branch uses regular `dev.architectury.loom` and official Mojang mappings.
-Compile shared sources into each loader module; do not put a remapped common jar
-on a named development runtime classpath. Both loaders need legacy mixin refmaps.
-Only loader remapped `build/libs` jars are distributable. Java 25 hosts Gradle;
-Java 17 is used for compilation and Minecraft. Keep plural 1.20.1 data directories
-and NBT item persistence; newer data components are not interchangeable.
+Icons and all-loader artifact guards are under `gradle/`.
+Historical 1.20.1/26.x helpers and acceptance are not current results. See
+[.github/RELEASE_ACCEPTANCE.md](.github/RELEASE_ACCEPTANCE.md).

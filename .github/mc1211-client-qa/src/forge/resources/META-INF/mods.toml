@@ -1,0 +1,7 @@
+modLoader="javafml"
+loaderVersion="[52,)"
+license="All Rights Reserved"
+[[mods]]
+modId="qa_client_smoke"
+version="1.0.0"
+displayName="Private Client QA"

@@ -1,0 +1,2 @@
+# Disposable local automated QA server only.
+eula=true

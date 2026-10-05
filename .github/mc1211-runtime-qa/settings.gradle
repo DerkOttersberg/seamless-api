@@ -1,0 +1,15 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.architectury.dev/' }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.neoforged.net/releases/' }
+    }
+}
+plugins { id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0' }
+def selectedLoader = providers.gradleProperty('clientLoader').getOrElse('fabric')
+if (!(selectedLoader in ['fabric', 'forge', 'neoforge'])) throw new GradleException('Unsupported loader')
+gradle.beforeProject { project -> project.ext.set('loom.platform', selectedLoader) }
+dependencyResolutionManagement { versionCatalogs { libs { from(files('../../gradle/libs.versions.toml')) } } }
+rootProject.name = 'mc1211-paired-runtime-qa'

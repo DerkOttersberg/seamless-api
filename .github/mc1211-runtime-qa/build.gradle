@@ -1,0 +1,63 @@
+plugins { alias(libs.plugins.loom) }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://maven.neoforged.net/releases/' }
+}
+def selectedLoader = providers.gradleProperty('clientLoader').getOrElse('fabric')
+java { toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInteger()) }
+sourceSets.main {
+    java.srcDirs = ['src/common/java', "src/${selectedLoader}/java"]
+    resources.srcDirs = ['src/common/resources', "src/${selectedLoader}/resources"]
+}
+dependencies {
+    minecraft libs.minecraft
+    mappings loom.officialMojangMappings()
+    if (selectedLoader == 'fabric') {
+        modImplementation libs.fabric.loader
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${libs.versions.fabric.api.get()}"
+    } else if (selectedLoader == 'forge') forge libs.forge
+    else neoForge libs.neoforge
+    modImplementation fileTree(providers.gradleProperty('runtimeJarsDir').get()) { include '*.jar' }
+}
+tasks.withType(JavaCompile).configureEach { options.release = 21 }
+loom {
+    if (selectedLoader == 'forge') forge { mixinConfig 'qa-runtime.mixins.json' }
+    mixin { useLegacyMixinAp = true; defaultRefmapName = 'qa-runtime.refmap.json' }
+    mods { qaruntime { sourceSet sourceSets.main } }
+    runs {
+        client {
+            client()
+            runDir providers.gradleProperty('clientRunDir').getOrElse('run')
+            programArgs '--username', providers.gradleProperty('qa.user').getOrElse('QA_A')
+        }
+    }
+}
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+    maxHeapSize = '1G'
+    jvmArgs '-XX:ActiveProcessorCount=2'
+    systemProperty 'qa.server', providers.gradleProperty('qa.server').getOrElse('127.0.0.1:26381')
+    systemProperty 'qa.runtime.acceptance', 'true'
+}
+tasks.named('jar', Jar) {
+    archiveBaseName = "qa-runtime-acceptance-${selectedLoader}"
+    if (selectedLoader != 'fabric') manifest.attributes('MixinConfigs': 'qa-runtime.mixins.json')
+}
+
+def iconRecords = ['seamless-api', 'pretty-meteors-with-trails', 'seamless-deconstructing-workbench', 'seamless-crafting', 'sword-throw']
+    .collect { file("../../../${it}/gradle/icon-provenance.json") }
+def iconQaResources = layout.buildDirectory.dir('generated/icon-qa-resources')
+tasks.register('generateIconQaProvenance') {
+    inputs.files iconRecords
+    outputs.dir iconQaResources
+    doLast {
+        def records = iconRecords.collect { new groovy.json.JsonSlurper().parse(it) }
+        def target = iconQaResources.get().file('qa/icon-provenance.json').asFile
+        target.parentFile.mkdirs()
+        target.text = groovy.json.JsonOutput.toJson(records.collectEntries { [(it.fabricId): it] })
+    }
+}
+sourceSets.main.resources.srcDir iconQaResources
+tasks.named('processResources') { dependsOn 'generateIconQaProvenance' }

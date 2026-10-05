@@ -1,0 +1,12 @@
+{
+  "fabricId": "seamlessapi",
+  "fmlId": "seamlessapi",
+  "license": "MIT",
+  "commonClass": "io/github/derkottersberg/seamlessapi/internal/SeamlessApiBootstrap.class",
+  "asset": "assets/seamlessapi/icon.png",
+  "sha256": "7537203B6A47CBB7CB71EA198CCC3561DEBC8F07141A0D3AA6307CBC419371AB",
+  "curseforgeProjectId": 1491027,
+  "projectPage": "https://www.curseforge.com/minecraft/mc-mods/seamless-api",
+  "source": "https://media.forgecdn.net/avatars/1731/730/639102238430506712.png",
+  "retrievedDate": "2026-10-05"
+}

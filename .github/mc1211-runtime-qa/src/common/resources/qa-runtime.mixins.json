@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "qa.runtime.mixin",
+  "plugin": "qa.runtime.QaMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "qa-runtime.refmap.json",
+  "priority": 500,
+  "mixins": ["ServerThrowProbeMixin"],
+  "client": ["ClientTickMixin", "ChatMixin", "ThrowStateMixin", "PlayerModelProbeMixin", "QaSkinModelMixin", "ContainerScreenAccess", "MouseAccess"],
+  "injectors": {"defaultRequire": 1}
+}

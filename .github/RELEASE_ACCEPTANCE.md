@@ -1,53 +1,58 @@
-# Minecraft 26.3 release acceptance
+# Minecraft 1.21.1 acceptance — in progress
 
-The maintained suite is SeamlessLib, Pretty Meteors, Deconstructing Workbench,
-Seamless Crafting, and Throw Weapons. Block Animations and the unfinished comfort
-project are excluded. Java 25 is required; all three loaders have separate jars.
+Active suite: SeamlessLib, Meteors, Workbench, Crafting, Throw Weapons.
+Retired Block Animations and experimental Comfort are excluded.
+Fabric / Forge / NeoForge, Java 21 game runtime, Java 25 Gradle host.
 
-## Completed local gates (October 4, 2026)
+## Passed local gates — 5 October 2026
 
-- Five `clean check build` runs and all 15 production loader jars.
-- 91 common unit tests, zero failures/errors.
-- 82 mod-specific native loader GameTest scenarios plus 12 vanilla built-ins.
-- All six paired-client loader/backend profiles: real dedicated server and two
-  clients, authoritative crafting/returns, partial/full throws, vanilla drops,
-  rendered arm/sleeve poses, reconnect, respawn, and dimension changes.
-- All 15 standalone integrated-world initialization/dependency profiles.
-- All three packaged dedicated-server persistence/restart profiles, using
-  copied legacy schema/config fixtures and retained migration backups.
-- All three settings profiles at GUI scales 2/3/4, including icons, empty
-  book-slot tooltips, draft/validation/resize checks; actual JEI exclusions on
-  Fabric and NeoForge.
-- Active meteor rendering in all three additional Vulkan combined profiles.
-- Final production SHA-256 matched the jars used in every designated profile.
+All five clean builds passed across three loaders. 90 unit tests and 86 required
+loader GameTests passed with discovery guards. All 15 runtime jars passed
+metadata/version/bytecode/license/isolation and exact CurseForge PNG checks.
+Client-hook/metadata follow-up changes are rebuilt and retested separately.
 
-The source ports are recorded in version branches and `suite-lock.json`;
-`release-artifacts.json` identifies the tested/CurseForge-submitted binaries.
-Detailed logs, screenshots, and PASS markers are retained in the owner's workspace
-under `qa-artifacts/mc26.3`. Exploratory failed runs are not accepted evidence.
-This records local tests, not a claim that remote GitHub Actions has passed.
+| Product | Unit | Fabric GameTests | Forge GameTests | NeoForge GameTests |
+| --- | ---: | ---: | ---: | ---: |
+| SeamlessLib | 4 | — | — | — |
+| Meteors | 25 | 2 | 2 | 2 |
+| Workbench | 17 | 8 | 8 | 8 |
+| Crafting | 16 | 11 | 12 | 12 |
+| Throw Weapons | 28 | 7 | 7 | 7 |
 
-## Limits
+Workspace logs: `qa-artifacts/mc1.21.1-*.log`. Failed attempts are retained,
+not counted as accepted evidence.
 
-Minecraft metadata intentionally permits only 26.3. Existing 26.2 jars are
-separate; 26.1 is not ported. Forge 66.0.9 and NeoForge 26.3.0.48-beta are upstream
-beta loaders, and their CurseForge files are Beta. JEI 31.9.0.57 is optional on
-Fabric/NeoForge; there is no corresponding pinned Forge runtime. Mod Menu 21 is
-optional on Fabric. Crafting was additionally tested without SeamlessLib, although
-the published suite dependency relation requests SeamlessLib.
+## Runtime progress and outstanding gates
 
-NeoForge Vulkan profiles set `earlyWindowControl = false` in their new
-`config/fml.toml`; do not advertise default-config Vulkan support. Offline QA
-clients log unavailable Realms/user services and this Windows machine logs
-missing Perflib counters; neither was hidden by changing OS/security settings.
+All five products were selected in the real Fabric, Forge and NeoForge Mods
+menus; the bundled 400x400 icons match their CurseForge provenance. All three
+genuine packaged dedicated servers passed two boots, exact Sword/Workbench
+persistence checks and backup-preserving Workbench config migration (attempt r3,
+corrected candidate r2 runtime jars).
+All three combined integrated-world tests passed partial throwing, local sleeve
+poses, item identity, book-slot tooltip, workbench processing and nearby crafting
+autofill/return conservation. Meteor state synchronization passed on all three;
+clear-sky screenshots demonstrate visible trails on Fabric standalone r3, Forge
+combined r3 and NeoForge combined r1. The original fixed-camera capture
+had no visible trails and is not counted as visual proof.
 
-Copied legacy fixtures do not prove every actual historical world upgrade.
-Tests do not guarantee every mod pack, skin, resource pack, driver, or storage
-provider. Preserve backups. Do not distribute QA helpers, Minecraft jars or worlds.
+Clean individual clients passed all four gameplay products on Fabric and Meteors
+on Forge (r3). Fabric installed JEI 19.57.0.451 passed actual runtime exclusion
+registration and visually inspected inventory/crafting screens (jei/r1).
+Actual Forge settings captures exposed a 1.21.1 background blur drawn after our
+labels; all four shared screen copies were fixed and all three-loader check/build
+matrices passed. Candidate r1 is superseded by built-20261005-r2. Corrected settings
+captures remain pending; earlier gameplay evidence records its original input jars.
 
-## Publication
+Remaining: other independent clean installs, corrected settings at multiple GUI
+scales, Forge/NeoForge installed JEI, broader copied-world upgrade and
+two-actual-client multiplayer. The test-only
+`seamless-api/.github/mc1211-client-qa` uses private WSL/Xvfb/software OpenGL.
+Its source/compile is not a passed scenario; Forge/NeoForge dev remapping is
+not a packaged-launcher test. Record exact final hashes after all changes.
 
-All 15 runtime files were submitted to the existing CurseForge pages with
-26.3/Java 25/one-loader metadata and automatic publication after approval.
-Moderation status is external and may change. Existing licenses and registry IDs
-were preserved; old 26.2 files were not relabeled or overwritten.
+## Release state
+
+Not production accepted. No 1.21.1 CurseForge submission/publication, GitHub
+push, branch deletion or repository rename has been performed by this port.
+Historical suite-lock/release-artifact manifests are not current acceptance.

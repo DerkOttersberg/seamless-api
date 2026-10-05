@@ -3,13 +3,13 @@ name: locked-suite
 on:
   workflow_dispatch:
   push:
-    branches: ['1.20.1']
+    branches: ['1.21.1']
     paths:
       - suite-lock.json
       - .github/workflows/suite.yml
       - .github/scripts/**
       - .github/fixtures/**
-      - .github/legacy-client-qa/**
+      - .github/mc1211-client-qa/**
   pull_request:
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -40,27 +40,27 @@ jobs:
           set -euo pipefail
           mkdir suite
           while IFS=$'\t' read -r directory repository commit; do
-            git -c init.defaultBranch=1.20.1 init "suite/$directory"
+            git -c init.defaultBranch=1.21.1 init "suite/$directory"
             git -C "suite/$directory" remote add origin "https://github.com/$repository.git"
             git -C "suite/$directory" fetch --depth=1 origin "$commit"
             git -C "suite/$directory" checkout --detach FETCH_HEAD
             test "$(git -C "suite/$directory" rev-parse HEAD)" = "$commit"
           done < <(jq -r '.repositories[] | [.directory, .repository, .commit] | @tsv' suite-lock.json)
-      - name: Build/test all five repositories and collect ten runtime jars
+      - name: Build/test all five repositories and collect 15 runtime jars
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p runtime-jars/{fabric,forge}
+          mkdir -p runtime-jars/{fabric,forge,neoforge}
           while IFS=$'\t' read -r directory base version; do
             (cd "suite/$directory" && ./gradlew --no-daemon clean check build)
-            for loader in fabric forge; do
+            for loader in fabric forge neoforge; do
               cp "suite/$directory/$loader/build/libs/$base-$version-$loader.jar" "runtime-jars/$loader/"
             done
           done < <(jq -r '.repositories | sort_by(.releaseOrder)[] | [.directory, .artifactBase, .artifactVersion] | @tsv' suite-lock.json)
-          test "$(find runtime-jars -type f -name '*.jar' | wc -l)" -eq 10
+          test "$(find runtime-jars -type f -name '*.jar' | wc -l)" -eq 15
       - uses: actions/upload-artifact@v4
         with:
-          name: minecraft-1.20.1-runtime-jars
+          name: minecraft-1.21.1-runtime-jars
           if-no-files-found: error
           path: runtime-jars
       - uses: actions/upload-artifact@v4
@@ -80,21 +80,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: [fabric, forge]
+        loader: [fabric, forge, neoforge]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: actions/download-artifact@v4
         with:
-          name: minecraft-1.20.1-runtime-jars
+          name: minecraft-1.21.1-runtime-jars
           path: runtime-jars
       - name: Boot untouched production jars and verify persistence across restart
         run: |
-          timeout --kill-after=20s 900s nice -n 10 taskset -c 0,1 bash .github/scripts/run-packaged-suite.sh \
+          timeout --kill-after=20s 900s nice -n 10 taskset -c 0,1 bash .github/scripts/run-packaged-mc1211-suite.sh \
             "${{ matrix.loader }}" "$PWD/runtime-jars/${{ matrix.loader }}" "$PWD/packaged-run"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -115,14 +115,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: [fabric, forge]
+        loader: [fabric, forge, neoforge]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -131,7 +131,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install --yes xvfb libgl1-mesa-dri libglx-mesa0 libasound2t64
       - uses: actions/download-artifact@v4
         with:
-          name: minecraft-1.20.1-runtime-jars
+          name: minecraft-1.21.1-runtime-jars
           path: runtime-jars
       - uses: actions/download-artifact@v4
         with:
@@ -139,7 +139,7 @@ jobs:
           path: server-evidence
       - name: Test all five mods and JEI in private Xvfb
         run: |
-          bash .github/scripts/run-isolated-suite-client.sh "${{ matrix.loader }}" \
+          bash .github/scripts/run-isolated-mc1211-suite-client.sh "${{ matrix.loader }}" \
             "$PWD/runtime-jars/${{ matrix.loader }}" "$PWD/server-evidence/suite-world" "$PWD/client-profile"
       - uses: actions/upload-artifact@v4
         if: always()

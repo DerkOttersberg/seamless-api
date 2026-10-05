@@ -33,9 +33,10 @@ def valid_manifest() -> dict:
         )
     return {
         "schemaVersion": 1,
+        "sourceState": "frozen",
         "suiteVersion": VERIFY.EXPECTED_SUITE_VERSION,
-        "minecraft": "1.20.1",
-        "java": 17,
+        "minecraft": VERIFY.EXPECTED_MINECRAFT,
+        "java": VERIFY.EXPECTED_JAVA,
         "gradle": "9.6.0",
         "tooling": copy.deepcopy(VERIFY.EXPECTED_TOOLING),
         "loaders": copy.deepcopy(VERIFY.EXPECTED_LOADERS),
@@ -46,10 +47,18 @@ def valid_manifest() -> dict:
 class SuiteLockVerifierTest(unittest.TestCase):
     def test_repository_manifest_matches_this_game_line(self) -> None:
         manifest = VERIFY.load_manifest(SCRIPT.parents[2] / "suite-lock.json")
-        self.assertEqual([], VERIFY.validate_manifest(manifest))
+        if manifest.get("sourceState") == "frozen":
+            self.assertEqual([], VERIFY.validate_manifest(manifest))
+        else:
+            self.assertTrue(any("sourceState" in error for error in VERIFY.validate_manifest(manifest)))
 
     def test_accepts_complete_release_lock(self) -> None:
         self.assertEqual([], VERIFY.validate_manifest(valid_manifest()))
+
+    def test_rejects_unfrozen_port_as_a_release_lock(self) -> None:
+        manifest = valid_manifest()
+        manifest["sourceState"] = "in-progress"
+        self.assertTrue(any("sourceState" in error for error in VERIFY.validate_manifest(manifest)))
 
     def test_rejects_missing_artifact_version(self) -> None:
         manifest = valid_manifest()

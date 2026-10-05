@@ -1,78 +1,46 @@
-# Seamless API
+# SeamlessLib
 
-This is the `1.20.1` source branch: **Fabric and Forge only**, with Java 17
-for Minecraft. The `26.2` and `26.3` branches remain separate; never mix their
-jars, worlds, or dependency checkouts with this line. See
-[REPOSITORY_WORKFLOW.md](REPOSITORY_WORKFLOW.md).
+Minecraft **1.21.1**, Java **21**; separate **Fabric, Forge and NeoForge** jars.
+Version `2.0.2+mc1.21.1`. Never mix these with 1.20.1 or 26.x binaries.
 
-Seamless API is the shared integration library for the Seamless mod family. It
-provides stable contracts for satiation and food buffs, deconstruction, meteor
-showers, and reusable visual calculations without owning gameplay state.
+Shared public food, deconstruction, meteor and visual contracts. Preserves `com.derko.seamlessapi`; no sibling gameplay mod is required.
 
-Version `2.0.2+mc1.20.1` supports Minecraft Java 1.20.1 on Fabric and Forge with Java 17.
+## Build and architecture
 
-## Compatibility contract
+`common` holds loader-neutral code, resources and tests; `fabric`, `forge`
+and `neoforge` explicitly inject their platform services. Architectury Loom
+is build tooling only, not a runtime API. Pins are in
+`gradle/libs.versions.toml`. Gameplay composite builds use a sibling
+`seamless-api` checkout for the matching Minecraft line; the library is not shaded.
 
-- The compatibility mod ID is `seamlessapi` on both loaders.
-- Existing public classes under `com.derko.seamlessapi` remain in that package.
-- New implementation classes use `io.github.derkottersberg` and are not API.
-- Public method signatures use Minecraft or loader-neutral types; loader
-  classes are never exposed by common contracts.
-- Architectury Loom is build tooling only. Architectury API is not a runtime
-  dependency.
-
-The maintained API surface includes `SatiationAPI`, `DeconstructionAPI`,
-`MeteorShowerAPI`, their registration records, and the visual profile/math
-types. See [MIGRATION.md](MIGRATION.md) for source and dependency changes from
-the older branches.
-
-## Architecture
-
-- `common` contains public contracts, loader-neutral implementation, resources,
-  and unit tests.
-- `fabric` and `forge` contain entrypoints and explicit platform
-  adapters.
-- `gradle/libs.versions.toml` is the sole source for Minecraft, loader,
-  toolchain, and test dependency versions.
-- CI rejects loader imports in `common` and jars containing another loader's
-  metadata.
-
-## Build
-
-Run Gradle on Java 25; source and Minecraft use the Java 17 toolchain:
-
+Run Gradle with Java 25 installed; source/game tasks use Java 21:
 
 ```text
 gradlew.bat clean check build
 ```
 
-Loader jars are written to each loader module's `build/libs` directory:
+Distribute only remapped
+`<loader>/build/libs/seamless-api-2.0.2+mc1.21.1-<loader>.jar`.
+Dev/QA jars are not release files. `check` runs common tests/isolation,
+applicable loader GameTests with discovery guards, and all-loader jar checks.
 
-```text
-seamless-api-2.0.2+mc1.20.1-fabric.jar
-seamless-api-2.0.2+mc1.20.1-forge.jar
-```
+## Icons and settings
 
-For sibling development, all four gameplay mods include this repository as a
-pinned Gradle composite. Published module coordinates use group
-`io.github.derkottersberg` and version `2.0.2+mc1.20.1`; the API is not shaded
-into dependent mods.
+All loaders reference the current CurseForge project PNG, bundled locally.
+Source URLs and SHA-256 are in `gradle/icon-provenance.json`; do not replace
+this artwork by running historical SVG generators. Fabric gameplay settings
+use optional Mod Menu 11.0.5; Forge/NeoForge use native Mods-menu adapters.
+SeamlessLib is a library with no gameplay settings screen.
 
-[`suite-lock.json`](suite-lock.json) records the exact compatible commit of all
-five maintained repositories. Suite CI reconstructs those sibling directories
-and runs every release build and server GameTest. The API entry is a tested
-baseline commit because a manifest cannot contain the hash of the commit that
-contains the manifest itself.
+## Status and migration
 
-See [PORTING.md](PORTING.md) for the loader boundary and
-[CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
-
-Desktop-safe 1.20.1 client QA is documented in
-[legacy-client-qa](.github/legacy-client-qa/README.md). Historical 26.x helpers
-are not acceptance evidence for this game line.
-See [the 1.20.1 QA report](QA-MC1.20.1.md) for completed checks and remaining
-release gates. No 1.20.1 CurseForge publication is implied by this source branch.
+Local clean builds pass across the suite: 90 unit tests and 86 loader GameTests.
+Client/UI, multiplayer, packaged-server and optional-JEI acceptance is separate:
+see [.github/RELEASE_ACCEPTANCE.md](.github/RELEASE_ACCEPTANCE.md).
+Build success is not production readiness, a GitHub push or a CurseForge release.
+See [PORTING.md](PORTING.md) and [MIGRATION.md](MIGRATION.md).
+Upgrade only backup copies of worlds/configs.
 
 ## License
 
-MIT
+Existing MIT licensing is unchanged; see [LICENSE](LICENSE).

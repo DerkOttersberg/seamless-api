@@ -1,72 +1,122 @@
 [
   {
-    "sha256": "f2d2da9f6ba5fcd0aa552b7dbe56709c4b5192f6fc6c0186184fb25bb4c7513b",
-    "minecraft": "1.21.1",
-    "loader": "fabric",
-    "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-fabric.jar",
-    "published": false
-  },
-  {
-    "sha256": "ae84ae0cc89ab5f46c93a4c4df7113d37570a057a7cd4802b83fd8178882a2d8",
+    "sha256": "e4e16320a94f809b11d7ff5906f63aa168587cf2f09080638b9cd4c643433312",
     "minecraft": "1.21.1",
     "loader": "fabric",
     "file": "seamless-api-2.0.2+mc1.21.1-fabric.jar",
+    "accepted": false,
     "published": false
   },
   {
-    "sha256": "a172313f20c124182aa93b8123ef4c97e87d2c19c20c0c04ee8101dc5b31ce46",
-    "minecraft": "1.21.1",
-    "loader": "fabric",
-    "file": "seamless-crafting-2.1.1+mc1.21.1-fabric.jar",
-    "published": false
-  },
-  {
-    "sha256": "dc8a02dd002335d9e19c3187473389153446737b1a86a81244eeec2f12b8e5b9",
-    "minecraft": "1.21.1",
-    "loader": "fabric",
-    "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-fabric.jar",
-    "published": false
-  },
-  {
-    "sha256": "2cd51d2a16d7fbf5db252e3dd5bd90616b0ca251d92d31d12013e4957d8cd9ac",
-    "minecraft": "1.21.1",
-    "loader": "fabric",
-    "file": "sword-throw-2.1.1+mc1.21.1-fabric.jar",
-    "published": false
-  },
-  {
-    "sha256": "0cb9bef76c2d091436fe278fae2b99408e7e5a8656cf3dc26b24b75faa012cc8",
-    "minecraft": "1.21.1",
-    "loader": "forge",
-    "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-forge.jar",
-    "published": false
-  },
-  {
-    "sha256": "3f203160813f0a56a519ecd425c8c13c6d85dfb2e8fa3956644e097d98873c55",
+    "sha256": "1c7f92667358f924acd9a82b70ce7542057eb0714dcbde58166707f9c91e4bf0",
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "seamless-api-2.0.2+mc1.21.1-forge.jar",
+    "accepted": false,
     "published": false
   },
   {
-    "sha256": "faf31378c4f9de35c4178ead198f901b20df2bc1513ae93eef4f2c94bce0f10c",
+    "sha256": "5e32e8cc61aa6d51c3bde1d93f8a66fcbabc3e89864a54bb5159a35b3154d77c",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "file": "seamless-api-2.0.2+mc1.21.1-neoforge.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "d99fc0acc42a500c1aef5c9df9ab9ec50890631523ba3cdf390f2f98c3e95132",
+    "minecraft": "1.21.1",
+    "loader": "fabric",
+    "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-fabric.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "f7939d1564127e922add9002115c16c9a18b3d91173833813d7730d2c9d4d5bc",
     "minecraft": "1.21.1",
     "loader": "forge",
-    "file": "seamless-crafting-2.1.1+mc1.21.1-forge.jar",
+    "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-forge.jar",
+    "accepted": false,
     "published": false
   },
   {
-    "sha256": "a38e4fe7d6c5b61c4907eb33fbf08c5e5f940f3e5634f5c6622d944a587fd180",
+    "sha256": "78e77149ae39bb4956362a30119c8bc5be834c8939d09612caeda17c0623d79e",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-neoforge.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "5a2bebd16d403f65b637f6385a30d61af33b7906ab49bbc912cf40fc0bf48c63",
+    "minecraft": "1.21.1",
+    "loader": "fabric",
+    "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-fabric.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "abaf876094c5a9c000542d6cd7a0385156ce47ff7d70d2dd0b8c8eec45af4757",
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-forge.jar",
+    "accepted": false,
     "published": false
   },
   {
-    "sha256": "33ea4d4cc6a06a58f156fc71e877600b13cce68c1f6156d23cc453a034a360e1",
+    "sha256": "234387269efe36495bdb270b79f8bacf343412cdae929fddb9c7cb9f0e0adaaa",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-neoforge.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "f866f276be6b607b4ee82f5e8e8a006b0dd7633f9434479ef167060746473fe9",
+    "minecraft": "1.21.1",
+    "loader": "fabric",
+    "file": "seamless-crafting-2.1.1+mc1.21.1-fabric.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "4d5c88f8ef95e012534979144c9a265cccf7b279e7e8d6d8b357578839d85988",
+    "minecraft": "1.21.1",
+    "loader": "forge",
+    "file": "seamless-crafting-2.1.1+mc1.21.1-forge.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "4ca66044aef05efa13141744c42ee13759ff8a290d20066e5621ac28250be24a",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "file": "seamless-crafting-2.1.1+mc1.21.1-neoforge.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "a5303a93e8212d7b165dd17c068e127d2b241ef0723bb46499f6f3b3c911d9fa",
+    "minecraft": "1.21.1",
+    "loader": "fabric",
+    "file": "sword-throw-2.1.1+mc1.21.1-fabric.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "68fae6626eb1babbde34412ee284e0d6960902bee976abc9a07027def1d7b4db",
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "sword-throw-2.1.1+mc1.21.1-forge.jar",
+    "accepted": false,
+    "published": false
+  },
+  {
+    "sha256": "13cc18a754de5aef86f0d08ed5020a3591762ae63ed133fd7f461dd93c9957cb",
+    "minecraft": "1.21.1",
+    "loader": "neoforge",
+    "file": "sword-throw-2.1.1+mc1.21.1-neoforge.jar",
+    "accepted": false,
     "published": false
   }
 ]

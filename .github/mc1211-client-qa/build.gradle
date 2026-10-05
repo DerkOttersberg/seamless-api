@@ -1,0 +1,90 @@
+plugins { alias(libs.plugins.loom) }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://maven.neoforged.net/releases/' }
+}
+def selectedLoader = providers.gradleProperty('clientLoader').getOrElse('fabric')
+java { toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInteger()) }
+sourceSets.main {
+    java.srcDir "src/${selectedLoader}/java"
+    resources.srcDir "src/${selectedLoader}/resources"
+}
+dependencies {
+    minecraft libs.minecraft
+    mappings loom.officialMojangMappings()
+    if (selectedLoader == 'fabric') modImplementation libs.fabric.loader
+    else if (selectedLoader == 'forge') {
+        forge libs.forge
+        // Forge's Loom development client uses named members, while release
+        // jars use SRG. Remap release inputs through the supported mod classpath.
+        modRuntimeOnly fileTree(providers.gradleProperty('clientRunDir').get() + '/artifact-inputs') { include '*.jar' }
+    } else {
+        neoForge libs.neoforge
+        modRuntimeOnly fileTree(providers.gradleProperty('clientRunDir').get() + '/artifact-inputs') { include '*.jar' }
+    }
+}
+tasks.withType(JavaCompile).configureEach { options.release = libs.versions.java.get().toInteger() }
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInteger()) }
+    maxHeapSize = '1G'
+    jvmArgs '-XX:ActiveProcessorCount=2'
+    systemProperty 'qa.loader', selectedLoader
+    ['qa.settings', 'qa.expectmeteors', 'qa.expectweapons', 'qa.expectworkbench', 'qa.expectcrafting', 'qa.expectjei', 'qa.menuOnly', 'qa.modMenu', 'qa.iconIds'].each { key ->
+        if (providers.gradleProperty(key).isPresent()) systemProperty key, providers.gradleProperty(key).get()
+    }
+}
+loom {
+    if (selectedLoader == 'forge') forge { mixinConfig 'qa1201.mixins.json' }
+    mixin { useLegacyMixinAp = true; defaultRefmapName = 'qa1201.refmap.json' }
+    mods { qa_client_smoke { sourceSet sourceSets.main } }
+    runs {
+        client {
+            client()
+            runDir providers.gradleProperty('clientRunDir').get()
+            if (providers.gradleProperty('qa.expectjei').getOrElse('false') == 'true') {
+                // Give both panels ordinary desktop-size room on the private display.
+                // At 854x480/scale 2, JEI may legitimately hide its ingredient grid.
+                programArgs '--width', '1280', '--height', '720'
+            }
+            // Enter through the fully initialized title screen. Quick Play can
+            // begin a Forge integrated-world reload before its event bus starts,
+            // leaving the loader's loot modifier manager uninitialized.
+            // IsolatedQa opens the copied world after 100 real title-screen ticks.
+        }
+    }
+}
+tasks.named('jar', Jar) { manifest { attributes 'MixinConfigs': 'qa1201.mixins.json' } }
+
+// Use recorded provenance, not manually retyped hash strings in test code.
+def iconRecords = ['seamless-api', 'pretty-meteors-with-trails', 'seamless-deconstructing-workbench', 'seamless-crafting', 'sword-throw']
+    .collect { file("../../../${it}/gradle/icon-provenance.json") }
+def iconQaResources = layout.buildDirectory.dir('generated/icon-qa-resources')
+tasks.register('generateIconQaProvenance') {
+    inputs.files iconRecords
+    outputs.dir iconQaResources
+    doLast {
+        def records = iconRecords.collect { new groovy.json.JsonSlurper().parse(it) }
+        def target = iconQaResources.get().file('qa/icon-provenance.json').asFile
+        target.parentFile.mkdirs()
+        target.text = groovy.json.JsonOutput.toJson(records.collectEntries { [(it.fabricId): it] })
+    }
+}
+sourceSets.main.resources.srcDir iconQaResources
+tasks.named('processResources') { dependsOn 'generateIconQaProvenance' }
+
+tasks.named('runClient') {
+    def qaDirectory = providers.gradleProperty('clientRunDir').map { file(it) }
+    doFirst {
+        // Only generated markers in this disposable QA profile.
+        new File(qaDirectory.get(), 'client-qa-passed.txt').delete()
+        new File(qaDirectory.get(), 'client-qa-failed.txt').delete()
+    }
+    doLast {
+        if (!new File(qaDirectory.get(), 'client-qa-passed.txt').isFile()
+                || new File(qaDirectory.get(), 'client-qa-failed.txt').exists()) {
+            throw new GradleException('Client closed without completing the isolated QA scenario')
+        }
+    }
+}

@@ -165,3 +165,5 @@ tasks.named('check') {
     dependsOn tasks.named('testRconHelper')
     dependsOn subprojects.collect { it.tasks.named('check') }
 }
+
+apply from: rootProject.file('gradle/verify-mc1211-artifacts.gradle')

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "qa_client_smoke",
+  "version": "1.0.0",
+  "name": "Private Client QA",
+  "environment": "client",
+  "mixins": ["qa1201.mixins.json"],
+  "depends": {"minecraft": "1.21.1", "java": ">=21", "fabricloader": ">=0.19.5"}
+}

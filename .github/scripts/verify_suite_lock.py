@@ -10,53 +10,65 @@ from pathlib import Path
 from typing import Any
 
 
+# Only the catalog's quoted string version entries are needed. Keep this
+# verifier dependency-free on the owner's Python 3.10 as well as CI Python.
+_catalog = (Path(__file__).resolve().parents[2] / "gradle/libs.versions.toml").read_text(encoding="utf-8")
+_version_section = _catalog.split("[versions]", 1)[1].split("\n[", 1)[0]
+_version_pairs = re.findall(r'^([\w-]+)\s*=\s*("[^"\n]*")\s*$', _version_section, re.MULTILINE)
+VERSIONS = {key: json.loads(value) for key, value in _version_pairs}
+if len(VERSIONS) != len(_version_pairs):
+    raise ValueError("Duplicate catalog version entry")
+EXPECTED_MINECRAFT = VERSIONS["minecraft"]
+EXPECTED_JAVA = int(VERSIONS["java"])
+
 EXPECTED_REPOSITORIES = {
     "seamless-api": {
         "name": "Seamless API",
         "repository": "DerkOttersberg/seamless-api",
         "artifactBase": "seamless-api",
-        "artifactVersion": "2.0.2+mc1.20.1",
+        "artifactVersion": f"2.0.2+mc{EXPECTED_MINECRAFT}",
         "releaseOrder": 1,
     },
     "pretty-meteors-with-trails": {
         "name": "Pretty Meteors with Trails",
         "repository": "DerkOttersberg/pretty-meteors-with-trails",
         "artifactBase": "pretty-meteors-with-trails",
-        "artifactVersion": "2.0.2+mc1.20.1",
+        "artifactVersion": f"2.0.2+mc{EXPECTED_MINECRAFT}",
         "releaseOrder": 2,
     },
     "seamless-deconstructing-workbench": {
         "name": "Seamless Deconstructing Workbench",
         "repository": "DerkOttersberg/seamless-deconstructing-workbench",
         "artifactBase": "seamless-deconstructing-workbench",
-        "artifactVersion": "2.1.1+mc1.20.1",
+        "artifactVersion": f"2.1.1+mc{EXPECTED_MINECRAFT}",
         "releaseOrder": 3,
     },
     "seamless-crafting": {
         "name": "Seamless Crafting",
         "repository": "DerkOttersberg/seamless-crafting",
         "artifactBase": "seamless-crafting",
-        "artifactVersion": "2.1.1+mc1.20.1",
+        "artifactVersion": f"2.1.1+mc{EXPECTED_MINECRAFT}",
         "releaseOrder": 4,
     },
     "sword-throw": {
         "name": "Sword Throw",
         "repository": "DerkOttersberg/sword-throw",
         "artifactBase": "sword-throw",
-        "artifactVersion": "2.1.1+mc1.20.1",
+        "artifactVersion": f"2.1.1+mc{EXPECTED_MINECRAFT}",
         "releaseOrder": 5,
     },
 }
 
-EXPECTED_SUITE_VERSION = "2.1.1+mc1.20.1"
+EXPECTED_SUITE_VERSION = f"2.1.1+mc{EXPECTED_MINECRAFT}"
 EXPECTED_TOOLING = {
-    "architecturyPlugin": "3.5.169",
-    "architecturyLoom": "1.17.493",
+    "architecturyPlugin": VERSIONS["architectury-plugin"],
+    "architecturyLoom": VERSIONS["architectury-loom"],
 }
 EXPECTED_LOADERS = {
-    "fabricLoader": "0.19.5",
-    "fabricApi": "0.92.12+1.20.1",
-    "forge": "1.20.1-47.4.26"
+    "fabricLoader": VERSIONS["fabric-loader"],
+    "fabricApi": VERSIONS["fabric-api"],
+    "forge": VERSIONS["forge"],
+    "neoforge": VERSIONS["neoforge"]
 }
 
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -91,8 +103,9 @@ def validate_manifest(manifest: Any) -> list[str]:
             errors.append(f"{key} must be {expected!r}, got {actual!r}")
 
     require_exact("schemaVersion", 1)
-    require_exact("minecraft", "1.20.1")
-    require_exact("java", 17)
+    require_exact("sourceState", "frozen")
+    require_exact("minecraft", EXPECTED_MINECRAFT)
+    require_exact("java", EXPECTED_JAVA)
     require_exact("gradle", "9.6.0")
     require_exact("suiteVersion", EXPECTED_SUITE_VERSION)
     require_exact("tooling", EXPECTED_TOOLING)
@@ -182,7 +195,7 @@ def main(argv: list[str]) -> int:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
-    print(f"Validated {path} with five pinned Minecraft 1.20.1 release artifacts.")
+    print(f"Validated {path} with five pinned Minecraft {EXPECTED_MINECRAFT} source commits (not runtime/release acceptance).")
     return 0
 
 
