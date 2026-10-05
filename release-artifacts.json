@@ -4,7 +4,7 @@
     "minecraft": "1.21.1",
     "loader": "fabric",
     "file": "seamless-api-2.0.2+mc1.21.1-fabric.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -12,7 +12,7 @@
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "seamless-api-2.0.2+mc1.21.1-forge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -20,7 +20,7 @@
     "minecraft": "1.21.1",
     "loader": "neoforge",
     "file": "seamless-api-2.0.2+mc1.21.1-neoforge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -28,7 +28,7 @@
     "minecraft": "1.21.1",
     "loader": "fabric",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-fabric.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -36,7 +36,7 @@
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-forge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -44,7 +44,7 @@
     "minecraft": "1.21.1",
     "loader": "neoforge",
     "file": "pretty-meteors-with-trails-2.0.2+mc1.21.1-neoforge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -52,7 +52,7 @@
     "minecraft": "1.21.1",
     "loader": "fabric",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-fabric.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -60,7 +60,7 @@
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-forge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -68,7 +68,7 @@
     "minecraft": "1.21.1",
     "loader": "neoforge",
     "file": "seamless-deconstructing-workbench-2.1.1+mc1.21.1-neoforge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -76,7 +76,7 @@
     "minecraft": "1.21.1",
     "loader": "fabric",
     "file": "seamless-crafting-2.1.1+mc1.21.1-fabric.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -84,7 +84,7 @@
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "seamless-crafting-2.1.1+mc1.21.1-forge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -92,7 +92,7 @@
     "minecraft": "1.21.1",
     "loader": "neoforge",
     "file": "seamless-crafting-2.1.1+mc1.21.1-neoforge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -100,7 +100,7 @@
     "minecraft": "1.21.1",
     "loader": "fabric",
     "file": "sword-throw-2.1.1+mc1.21.1-fabric.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -108,7 +108,7 @@
     "minecraft": "1.21.1",
     "loader": "forge",
     "file": "sword-throw-2.1.1+mc1.21.1-forge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   },
   {
@@ -116,7 +116,7 @@
     "minecraft": "1.21.1",
     "loader": "neoforge",
     "file": "sword-throw-2.1.1+mc1.21.1-neoforge.jar",
-    "accepted": false,
+    "accepted": true,
     "published": false
   }
 ]

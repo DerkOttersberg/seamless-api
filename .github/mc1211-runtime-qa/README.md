@@ -16,6 +16,12 @@ with original production jars. `qa.menuOnly` and `qa.individual` select those
 scenarios. Screenshots/PASS markers identify scenario completion, not source
 compilation. A helper build alone is not a passed release gate.
 
+Standalone profiles select one gameplay mod plus SeamlessLib. `qa.noWeapons`
+skips only the helper's Sword Throw probes when that mod is not installed;
+single-client/menu scenarios do not register the paired dedicated-server harness.
+Minecraft field access uses remappable Mixin accessors, and model poses compare
+their numeric transforms (1.21.1 PartPose is not a value-equality record).
+
 Workspace tooling prepares native launcher profiles from Mojang/Fabric metadata
 and official Forge/NeoForge installers. All runtime inputs are captured by hash.
 GUI execution requires the shared exclusive lock and private Xvfb display,
