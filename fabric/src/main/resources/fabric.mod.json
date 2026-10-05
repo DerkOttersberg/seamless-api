@@ -11,7 +11,7 @@
     "sources": "https://github.com/DerkOttersberg/seamless-api",
     "issues": "https://github.com/DerkOttersberg/seamless-api/issues"
   },
-  "license": "MIT",
+  "license": "All Rights Reserved",
   "environment": "*",
   "entrypoints": {
     "main": [
