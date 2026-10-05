@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="${loader_version_range}"
-license="MIT"
+license="All Rights Reserved"
 issueTrackerURL="https://github.com/DerkOttersberg/seamless-api/issues"
 
 [[mods]]
