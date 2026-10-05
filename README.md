@@ -65,4 +65,9 @@ See [PORTING.md](PORTING.md) for the loader boundary and
 
 ## License
 
-MIT
+**All Rights Reserved** for new original material owned by Derk Ottersberg.
+See [LICENSE](LICENSE) and [licensing history](LICENSES/README.md) for prior-license and third-party exceptions.
+
+Public source may be viewed and forked on GitHub. Issues and pull requests are welcome;
+write access to this repository is reserved for the owner.
+
